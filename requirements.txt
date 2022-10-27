@@ -1,4 +1,5 @@
-numpy
-matplotlib
-pandas
+numpy==1.23.4
+matplotlib==3.6.1 
 python-binance==1.0.1
+pyzmq==24.0.1 
+pandas
