@@ -1,0 +1,4 @@
+numpy
+matplotlib
+pandas
+python-binance==1.0.1
