@@ -1,9 +1,17 @@
-import sys
+
 MARKET = 'BTCUSDT'
+
 DATA_FILE_NAME = f'{MARKET}.csv'
+
 REQUEST_TIME_INTERVAL = 0.4
-N_TICKS_VIZUALIZER = 10
+REQUEST_TIME_INTERVAL = 0.4
+
+N_TICKS_VIZUALIZER = 50
+
 ORACLE_LINK = 'ipc://127.0.0.1:5678'
+
+TOPICS = ['orderbook', 'price']
+#TOPICS = ['price', 'orderbook','klines']
 
 header = ['start_time','Open','High','Low','Close','Volume','end_time','quote_asset_volume','numbers_of_trades','taker_buy_base_asset_volume','ignore','taker_sell_base_asset_volume','maker_sell_base_asset_volume','maker_buy_base_asset_volume']
 

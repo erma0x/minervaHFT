@@ -57,7 +57,7 @@ def calc_vwap(period):
 # download and calculate indicators
 df = download_price_history(interval_mins=30,start_time='2022-08-21', end_time='2022-08-28') # reduce to [15, 5, 1] minutes to increase accuracy
 time_volume_profile = calc_volume_profile(df, period='W', bins=20) # try fewer/more horizontal bars (graphical resolution only)
-#vwap = calc_vwap(period='D') # try period='D'     # calc_volume_profile period W or d
+vwap = calc_vwap(period='D') # try period='D'     # calc_volume_profile period W or d
 
 # plot
 fplt.create_plot('Binance BTC futures weekly volume profile')
