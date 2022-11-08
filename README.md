@@ -1,32 +1,49 @@
-# White Dragon
+# Drago Bianco
 
 ### High frequency trading distributed system with volumes data driven system capital allocation.
 
+
+- price discovery through limit orderd book imbalances
+- order front running
+
 <br>
 
-![](docs/images/banner.png)
+![](docs/img/banner.png)
 
 <br>
 
 ## **Installation**
 
-1. `python3 -m venv venv`
-2. `source venv/bin/activate`
-3. `python3 -m pip install --upgrade pip`
-4. `python3 -m pip install --upgrade python-binance`
-5. `export binance_api="your api key"`
-6. `export binance_secret="your api secret"`
+1. `python3 -m venv venv` <br> install virtual enviroenment
+
+2. `source venv/bin/activate` <br> activate virtual enviroenment
+
+3. `python3 -m pip3 install --upgrade pip` <br> upgrade packet manager
+
+4. `python3 -m pip3 install -r requirements.txt` <br> install project requirement libraries
+
+4. `python3 -m pip3 install --upgrade python-binance` <br> install upgrades for python-binance library
+
+5. `export binance_api="your api key"` <br> export binance.com api key
+
+6. `export binance_secret="your api secret"` <br> export binance.com api secret
+
+7. `export kucoin_api="your api key"` <br> export kucoin.com api key
+
+8. `export kucoin_secret="your api secret"` <br> export kucoin.com api secret
 
 ## **How to run**
-1. `python3 producer_btcusdt_orderbook.py`
-2. `python3 producer_btcusdt_price.py`
-1. `python3 producer_btcusdt_orderbook.py`
-2. `python3 producer_btcusdt_price.py`
 
-#### IN DEVELOPMENT??
+1. `python3 data_streamer.py` <br> STREAM: price, orderbook, klines
 
-3. `python3 producer_btcusdt_past_price.py`
-3. `python3 producer_btcusdt_past_price.py`
+2. `python3 data_visualizer.py` <br> VISUALIZE: price, candlestick, orderbook, volume profile, open trades
+
+3. `python3 white_dragon.py` <br> GET and DATA PROCESS: price, volume profile, orderbook -> POST(or not) trading_operation
+
+4. `python3 risk_maneagement.py` <br> GET trading_operation -> risk maneagement -> POST trading_operation
+
+5. `python3 live_trader.py` <br> GET trading_operation -> POST kucoin/api trade
+
 
 <br>
 
@@ -34,60 +51,61 @@ ________________________________
 
 ##  **Algorithm**
   
-1. vedi se ci sono operazioni aperte identiche o simili
+####  **SET ENTRIES, TAKE PROFITS AND STOP LOSSES OPERATION**
+
+    HFT with directional move on void of orderbook+traded volumes an positioning
+    on the within the nearby orderbook+traded volumes.
+
+    1. vedi se ci sono operazioni aperte identiche o simili
+        
+    1. vedi se ci sono troppe operazioni aperte (troppo numero o troppo capitale investito) 
+
+    1. calcolo se nell' immediato ci sono segnali puliti per applicare i vuoti volumetrici 
+        volume profile del immediato e confrontarlo con l'order book, 
+        se ci sono forti capitali fra i segnati calcolati meglio disdire
+
+    1. calcolo del range in cui e' possibile aprire un operazione ENTRY ampiezza segnale volumetrico pulito
+
+    1. se il prezzo e' nel range e l'order book sta per essere pienato da una unica direzione (LONG o SHORT)
+
+    1. imposta ENTRY limite a prezzo svantaggioso nella direzione in cui sta andando
+
+    1. imposta TP nel picco accanto rispetto al movimento secondo wychoff
+
+    1. imposta SL nel picco accanto rispetto al movimento secondo wychoff 
+
+
+
+
+### **RISK MANEAGEMENT**
+    - 3% for trade with max allowed leverage 
+    - 90% allowed parallel trading capital
+
+
+<br>
+
+### **DATASTREAMING** 
     
-1. vedi se ci sono troppe operazioni aperte (troppo numero o troppo capitale investito) 
-
-1. calcolo se nell' immediato ci sono segnali puliti per applicare i vuoti volumetrici 
-    volume profile del immediato e confrontarlo con l'order book, 
-    se ci sono forti capitali fra i segnati calcolati meglio disdire
-
-1. calcolo del range in cui e' possibile aprire un operazione ENTRY ampiezza segnale volumetrico pulito
-
-1. se il prezzo e' nel range e l'order book sta per essere pienato da una unica direzione (LONG o SHORT)
-
-1. imposta ENTRY limite a prezzo svantaggioso nella direzione in cui sta andando
-
-1. imposta TP nel picco accanto rispetto al movimento secondo wychoff
-
-1. imposta SL nel picco accanto rispetto al movimento secondo wychoff 
+    Take data from binance.com
+    - prendi volume profile ogni minuto e salvalo giornaliero
+    - prendi il prezzo ogni minuto
+    - x = prendi l'order book ogni minuto
 
 <br>
 
-## **Datafeed system**
-from binance.com
-   - prendi volume profile ogni minuto e salvalo giornaliero
-   - prendi il prezzo ogni minuto
-   - x = prendi l'order book ogni minuto
+### **EXCHANGES**
+    
+    TRADING               www.kucoin.com      
+    TRADING               www.ftx.com         
+    
+    DATA STREAMING        www.binance.com
 
 <br>
 
-## **Positioning**
-HFT with directional move on void of orderbook+traded volumes an positioning
-on the within the nearby orderbook+traded volumes.
 
 
-<br>
-
-## **Sizing**
-- 3% for trade with max allowed leverage 
-- 90% allowed parallel trading capital
-
-
-<br>
-
-## **Cryptofutures exchanges**
-- kucoin.com
-- ftx.com
-
-<br>
-
-______________________________________________________________
-
-<br>
-
-## APIs
-### **binance.com** APIs
+## **APIs**
+### binance api 
 #### exchangeInfo
 - https://api.binance.com/api/v3/exchangeInfo
 - https://api.binance.com/api/v3/exchangeInfo?symbol=BTCUSDT

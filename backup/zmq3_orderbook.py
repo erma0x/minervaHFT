@@ -3,7 +3,7 @@
 import time
 import zmq
 from binance import Client #, ThreadedWebsocketManager, ThreadedDepthCacheManager
-from parameters import REQUEST_TIME_INTERVAL, ORACLE_LINK, MARKET, TOPICS
+from parameters import REQUEST_TIME_INTERVAL, DATASTREAMER_URL, MARKET, TOPICS_DATASTRAMER
 
 def get_orderbook_depth(ticker='BTCUSDT',limit_=1000):
     client = Client()
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
-    socket.bind(ORACLE_LINK)
+    socket.bind(DATASTREAMER_URL)
 
     while True:
         orderbook = get_orderbook_depth(ticker=MARKET,limit_=600)

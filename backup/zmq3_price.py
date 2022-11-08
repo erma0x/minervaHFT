@@ -3,7 +3,7 @@
 import requests
 import time
 import zmq
-from parameters import REQUEST_TIME_INTERVAL, ORACLE_LINK, MARKET
+from parameters import REQUEST_TIME_INTERVAL, DATASTREAMER_URL, MARKET
 import datetime
 
 def get_instant_price(market_='BTCUSDT'): 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     context = zmq.Context()
     publisher = context.socket(zmq.PUB)
-    publisher.bind(ORACLE_LINK)
+    publisher.bind(DATASTREAMER_URL)
 
     while True:
         #try:
