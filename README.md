@@ -1,10 +1,8 @@
-# Drago Bianco
-
-### High frequency trading distributed system with volumes data driven system capital allocation.
-
+# Leonardo
+### High frequency automated trading system with volumes data driven system capital allocation.
 
 - price discovery through limit orderd book imbalances
-- order front running
+- limit order front running
 
 <br>
 
@@ -34,6 +32,12 @@
 
 ## **How to run**
 
+    ```
+    
+    python3 minerva.py --plot_data 1 --capital 10000 --limit_orderbook 500 --relative_threshold 15 --short_pressure 0.69 --long_pressure 0.31 --max_councurrent_trades 10 --peak_distance_divisor 50 --stop_loss_price_buffer 0.5 --percentage_per_trade 0.1 --ask_bid_window 50 --take_profit_price_buffer 1.0 --treshold_operative_volume_ab 0.00001 --market BTCUSDT
+    
+    ```
+
 1. `python3 data_streamer.py` <br> STREAM: price, orderbook, klines
 
 2. `python3 data_visualizer.py` <br> VISUALIZE: price, candlestick, orderbook, volume profile, open trades
@@ -44,9 +48,7 @@
 
 5. `python3 live_trader.py` <br> GET trading_operation -> POST kucoin/api trade
 
-
 <br>
-
 ________________________________
 
 ##  **Algorithm**
@@ -74,13 +76,9 @@ ________________________________
 
     1. imposta SL nel picco accanto rispetto al movimento secondo wychoff 
 
-
-
-
 ### **RISK MANEAGEMENT**
     - 3% for trade with max allowed leverage 
     - 90% allowed parallel trading capital
-
 
 <br>
 
@@ -101,7 +99,6 @@ ________________________________
     DATA STREAMING        www.binance.com
 
 <br>
-
 
 
 ## **APIs**

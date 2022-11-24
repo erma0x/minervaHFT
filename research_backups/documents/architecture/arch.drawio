@@ -1,0 +1,31 @@
+<mxfile host="65bd71144e">
+    <diagram id="QkUYuGRCeijY0PdVVWB2" name="Page-1">
+        <mxGraphModel dx="1183" dy="1583" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" background="none" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="23" value="streaming&lt;br&gt;engine" style="shape=tapeData;whiteSpace=wrap;html=1;perimeter=ellipsePerimeter;" vertex="1" parent="1">
+                    <mxGeometry x="305" y="-157" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="row" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="28" target="30">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="get_price()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="1">
+                    <mxGeometry x="426" y="-404" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="json" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="29" target="33">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" value="get_orderbook()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="1">
+                    <mxGeometry x="608" y="-400" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="price.csv" style="shape=datastore;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="439.5" y="-270" width="93" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="orderbook.db&lt;br&gt;mongoDB" style="shape=datastore;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="620" y="-268" width="102" height="67" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

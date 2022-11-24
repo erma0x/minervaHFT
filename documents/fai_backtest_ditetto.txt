@@ -1,0 +1,6 @@
+
+fai un backtest dentro minerva.py
+
+calcola le fees e lancia il processo due volte e verifica che fanno le stesse cose
+
+lancia piu processi con diversi parametri
