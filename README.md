@@ -3,19 +3,31 @@
 High frequency Automated Trading System with crypto volumes data driven system capital allocation.
 HFT with directional move on void of orderbook+traded volumes an positioningon the within the nearby orderbook+traded volumes. Price discovery through limit orderd book imbalances. Limit order front running.
 
-## **How to run the test script**
+## How to run
 
-``` bash
-$ python3 minerva.py --plot_data 1 --capital 10000 --limit_orderbook 500 --relative_threshold 15 --short_pressure 0.69 --long_pressure 0.31 --max_councurrent_trades 10 --peak_distance_divisor 50 --stop_loss_price_buffer 0.5 --percentage_per_trade 0.1 --ask_bid_window 50 --take_profit_price_buffer 1.0 --treshold_operative_volume_ab 0.00001 --market BTCUSDT
+# Evolve
+``` 
+$ python3 streamer.py
+$ python3 genetic_algorithm.py
 ```
 
-## **How to run the Automated Trading System**
+# Trade
+``` bash
+$ python3 streamer.py
+$ python3 oracle.py -s ./strategies/ronin.py
+```
 
+# Components
+- streamer : backtest/live, save in SQL .db
+- oracle : find LONG/SHORT, TP/SL/ENTRY, RISK-MANAGER, TRADER
+
+
+## **How to run the Automated Trading System**
 1. `python3 streamer.py` <br> STREAM: price, orderbook, klines
 2. `python3 visualizer.py` <br> VISUALIZE: price, candlestick, orderbook, volume profile, open trades
 3. `python3 oracle.py` <br> GET and DATA PROCESS: price, volume profile, orderbook -> POST(or not) trading_operation
-4. `python3 demo_trader.py` <br> GET trading_operation -> risk maneagement -> POST trading_operation
-5. `python3 live_trader.py` <br> GET trading_operation -> POST kucoin/api trade
+4. `python3 oracle.py` <br> GET trading_operation -> risk maneagement -> POST trading_operation
+5. `python3 oracle.py` <br> GET trading_operation -> POST kucoin/api trade
 
 <br>
 
