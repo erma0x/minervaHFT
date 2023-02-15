@@ -4,3 +4,6 @@ python-binance==1.0.1
 pyzmq==24.0.1 
 pandas==1.5.1
 scipy==1.9.3
+redis==4.3.5
+redis-server
+redis-cli
