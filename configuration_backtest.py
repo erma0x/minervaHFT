@@ -3,6 +3,7 @@ from datetime import datetime
 # STREAMER
 SAVE_LIVE_DATA_IN_SQL = True
 BACKTEST_MODE = False
+PRINT_TIMESTAMP = False
 
 # CAMBIA ANCHE SU orderbook_storage() su database_utilities.py
 ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:10].replace(' ','_')}.db" # days

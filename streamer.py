@@ -9,7 +9,7 @@ import argparse
 from datetime import datetime, timedelta
 import sqlite3
 import pandas as pd
-
+import os
 import zmq
 import signal
 from binance import Client as binance_client
@@ -37,12 +37,13 @@ def mock_datastreamer(socket):
     while True:        
 
         try:
-            os.system('clear')
-            counter+=1
-            print(f'\n Minerva Backtesting Streamer')
-            print(f" data      {counter}")
-            print(f" minutes   {round(counter*0.4/60,2)}")
-            print(f" exec time {str(datetime.now()-START_TIME)[:-7]}")
+            if PRINT_TIMESTAMP:
+                os.system('clear')
+                counter+=1
+                print(f'\n Minerva Backtesting Streamer')
+                print(f" data      {counter}")
+                print(f" minutes   {round(counter*0.4/60,2)}")
+                print(f" exec time {str(datetime.now()-START_TIME)[:-7]}")
 
             ask = next(ask_generator)
             bid = next(bid_generator)
