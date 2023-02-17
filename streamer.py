@@ -40,7 +40,7 @@ def mock_datastreamer(socket):
             if PRINT_TIMESTAMP:
                 os.system('clear')
                 counter+=1
-                print(f'\n Minerva Backtesting Streamer')
+                print('🔶 Backtest streamer')
                 print(f" data      {counter}")
                 print(f" minutes   {round(counter*0.4/60,2)}")
                 print(f" exec time {str(datetime.now()-START_TIME)[:-7]}")
@@ -83,8 +83,6 @@ def on_message(ws, message):
         print(f'\n\t end data feed!')
     finally:
         time.sleep(0.4)
-        print('Minerva Backtesting Streamer')
-
 
 
 def get_orderbook_depth(client,socket,ticker='BTCUSDT', limit_=200):
@@ -119,7 +117,7 @@ if __name__ == '__main__':
         socket = context.socket(zmq.PUB)
         socket.bind('tcp://*:5555')
 
-        print('Minerva Backtesting Streamer')
+        print(f'\n 🚀 backtester streaming...\n')
         while True:
             mock_datastreamer(socket=socket)
 

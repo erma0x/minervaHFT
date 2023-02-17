@@ -7,8 +7,13 @@ import os
 from configuration_backtest import ROOT_PATH
 
 
-def run_file(file):
+def run_oracle(file):
     cmd = f"python3 oracle.py --s {file}"
+    subprocess.call(cmd, shell=True)
+
+
+def run_streamer():
+    cmd = f"python3 streamer.py"
     subprocess.call(cmd, shell=True)
 
 
@@ -25,16 +30,16 @@ def run_strategies():
     files = find_files(ROOT_PATH+'/strategies/')
     threads = []
     for file in files:
-        t = threading.Thread(target=run_file, args=(file,))
+        t = threading.Thread(target=run_oracle, args=(file,))
 
         EXEC_IMPORT_STRING=f"""from {file.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('.st','st')} import *"""
         exec(EXEC_IMPORT_STRING)       
-
+        t.start()
         threads.append(t)
 
-    t = threading.Thread(target=f"python3 streamer.py")
-    threads.append(t)
+    t = threading.Thread(target=run_streamer)
     t.start()
+    threads.append(t)
 
     for t in threads:
         t.join()

@@ -48,7 +48,7 @@ if __name__ == '__main__':
     """
     example of command
 
-    python3 minerva.py --plot_data 0 --capital 10000 --limit_orderbook 500 --relative_threshold 10 --short_pressure 0.75 --long_pressure 0.25 --max_concurrent_trades 5 --peak_distance_divisor 10 --stop_loss_price_buffer 0.2 --precentage_per_trade 0.18 --market BTCUSDT
+    python3 minerva.py --plot_data 0 --capital 10000 --limit_orderbook 500 --relative_THRESHOLD 10 --short_pressure 0.75 --long_pressure 0.25 --max_concurrent_trades 5 --peak_distance_divisor 10 --stop_loss_price_buffer 0.2 --precentage_per_trade 0.18 --market BTCUSDT
 
     python3 minerva.py -plt False -cap 5000 -lo 500 -rt 10 -sp 0.75 -lp 0.25 -maxt 5 -pkd 10 -pf 1 --market BTCUSDT
 
@@ -63,9 +63,9 @@ if __name__ == '__main__':
     PLOTTA PICCHI
 
         TROVA MINIMI 
-    peaks, _ = find_peaks( -y, height = 0, threshold = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1
+    peaks, _ = find_peaks( -y, height = 0, THRESHOLD = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1
 
-    i picchi sono effettivamente quelli che vedo? -> setta threshold
+    i picchi sono effettivamente quelli che vedo? -> setta THRESHOLD
     distanza dal picco precendente -> setta distanza
 
     bin = x
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     parser.add_argument("-plt","--plot_data",type=int, default=None, help="stream orderbook data and trading data with matplotlib")
     parser.add_argument("-cap", "--capital",type=int, default=5000,help="initial capital in usd")
     parser.add_argument("-lo", "--limit_orderbook",type=int, default=500,help="limit request of the orderbook from binance")
-    parser.add_argument("-rt", "--relative_threshold",type=int, default=10,help="relative operative trading threshold refered to : max_local_volume/relative_threshold ")
+    parser.add_argument("-rt", "--relative_THRESHOLD",type=int, default=10,help="relative operative trading THRESHOLD refered to : max_local_volume/relative_THRESHOLD ")
     parser.add_argument("-sp", "--short_pressure",type=float, default=0.8,help="A/(A+B) > short_pressure => SHORT")
     parser.add_argument("-lp", "--long_pressure",type=float, default=0.2,help="A/(A+B) < long_pressure => LONG")
     parser.add_argument("-maxt", "--max_councurrent_trades",type=int, default=3,help="max open trades at the same time")
@@ -113,10 +113,10 @@ if __name__ == '__main__':
     PLOT_DATA = args.plot_data
     INITIAL_CAPITAL =  args.capital
     LIMIT_ORDER_BOOK =  args.limit_orderbook
-    RELATIVE_THRESHOLD_DIV =  args.relative_threshold # int (2,100)
+    RELATIVE_THRESHOLD_DIV =  args.relative_THRESHOLD # int (2,100)
 
-    THESHOLD_SHORT = args.short_pressure
-    THESHOLD_LONG = args.long_pressure
+    THRESHOLD_SHORT = args.short_pressure
+    THRESHOLD_LONG = args.long_pressure
     MAX_CONCURRENT_OPEN_TRADES = args.max_councurrent_trades
     MAX_SECONDS_TRADE_OPEN = args.max_seconds_trade_open
     PEAK_DISTANCE_DIVISOR = args.peak_distance_divisor
@@ -173,7 +173,7 @@ if __name__ == '__main__':
         B = sum(bids_volumes[:AB_LEN])
 
         # ENTRY algorithm
-        # se A > threshold e B > threshold
+        # se A > THRESHOLD e B > THRESHOLD
         #if A > THRESHOLD_VOLUME_BTCUSDT => short
         #if B > THRESHOLD_VOLUME_BTCUSDT  and  a/(a+b)   =>   long
 
@@ -183,10 +183,10 @@ if __name__ == '__main__':
         MAX_LONG_POSITIONS = LONG_OPERATIONS <= math.floor(MAX_CONCURRENT_OPEN_TRADES/2)
         MAX_SHORT_POSITIONS = SHORT_OPERATIONS <= math.floor(MAX_CONCURRENT_OPEN_TRADES/2)
 
-        if OPERATION_PARAMETER > THESHOLD_SHORT and MAX_SHORT_POSITIONS:
+        if OPERATION_PARAMETER > THRESHOLD_SHORT and MAX_SHORT_POSITIONS:
             OPERATION_SIDE = "SHORT" 
 
-        elif OPERATION_PARAMETER < THESHOLD_LONG and MAX_LONG_POSITIONS:
+        elif OPERATION_PARAMETER < THRESHOLD_LONG and MAX_LONG_POSITIONS:
             OPERATION_SIDE = "LONG" 
         
         else:
@@ -221,9 +221,9 @@ if __name__ == '__main__':
         PEAK_DISTANCE = int(round(LIMIT_ORDER_BOOK / PEAK_DISTANCE_DIVISOR))
 
         peaks_asks, _1 = find_peaks(
-            asks_volumes, height=0, threshold=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
+            asks_volumes, height=0, THRESHOLD=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
         peaks_bids, _2 = find_peaks(
-            bids_volumes, height=0, threshold=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
+            bids_volumes, height=0, THRESHOLD=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
 
         # ci sono picchi vicino al prezzo?
         #if asks_prices[peaks_asks[0]] - MID_PRICE  < 5.0 and MID_PRICE - bids_prices[peaks_bids[0]] < 5.0:
@@ -363,9 +363,9 @@ if __name__ == '__main__':
             plt.barh(np.array(orderbook['bids'])[:, 0], np.array(orderbook['bids'])[
                     :, 1], alpha=0.75, height=0.18, color='yellowgreen')
 
-            # threshold filter
+            # THRESHOLD filter
             plt.axvline(x=THRESHOLD_BTCUSDT, color='teal',
-                        label='operative filter threshold', linestyle='--', alpha=0.3)
+                        label='operative filter THRESHOLD', linestyle='--', alpha=0.3)
 
             # mid price
             plt.axhline(y=MID_PRICE, color='indigo', linestyle='--', alpha=0.5)

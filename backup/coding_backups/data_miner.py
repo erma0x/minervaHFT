@@ -37,9 +37,9 @@ if __name__ == '__main__':
     PLOTTA PICCHI
 
         TROVA MINIMI 
-    peaks, _ = find_peaks( -y, height = 0, threshold = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1
+    peaks, _ = find_peaks( -y, height = 0, THRESHOLD = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1
 
-    i picchi sono effettivamente quelli che vedo? -> setta threshold
+    i picchi sono effettivamente quelli che vedo? -> setta THRESHOLD
     distanza dal picco precendente -> setta distanza
 
     bin = x
@@ -89,21 +89,21 @@ if __name__ == '__main__':
     # B = prendo i primi X1 bids_volumes in ordine DE-CRESCENTE 
 
     THRESHOLD_VOLUME_BTCUSDT = 0.001 # FILTRO OPERATIVO ASSOLUTO
-    THESHOLD_SHORT = 0.8
-    THESHOLD_LONG = 0.2
+    THRESHOLD_SHORT = 0.8
+    THRESHOLD_LONG = 0.2
 
-    # se A > threshold e B > threshold
+    # se A > THRESHOLD e B > THRESHOLD
     if A > THRESHOLD_VOLUME_BTCUSDT and B > THRESHOLD_VOLUME_BTCUSDT:
         print('FRONT RUNNING')
 
         OPERATION_PARAMETER = A/(A+B)
     
-    # se A / (A+B) > threshold_long and operation=True
-        if OPERATION_PARAMETER > THESHOLD_SHORT:
+    # se A / (A+B) > THRESHOLD_long and operation=True
+        if OPERATION_PARAMETER > THRESHOLD_SHORT:
             print('SHORT')
 
-    # se A / (A+B) < threshold_short and operation=True
-        if OPERATION_PARAMETER < THESHOLD_LONG:
+    # se A / (A+B) < THRESHOLD_short and operation=True
+        if OPERATION_PARAMETER < THRESHOLD_LONG:
             print('LONG')
             
     
@@ -130,9 +130,9 @@ if __name__ == '__main__':
         PEAK_DISTANCE = int(round(LIMIT_ORDER_BOOK / LIMIT_ORDER_BOOK_DIVISOR))
 
         peaks_asks, _1 = find_peaks(
-            asks_volumes, height=0, threshold=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
+            asks_volumes, height=0, THRESHOLD=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
         peaks_bids, _2 = find_peaks(
-            bids_volumes, height=0, threshold=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
+            bids_volumes, height=0, THRESHOLD=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
 
         # peaks
         plt.scatter(asks_volumes[peaks_asks],
@@ -147,9 +147,9 @@ if __name__ == '__main__':
         plt.barh(np.array(orderbook['bids'])[:, 0], np.array(orderbook['bids'])[
                 :, 1], alpha=0.75, height=0.18, color='yellowgreen')
 
-        # threshold filter
+        # THRESHOLD filter
         plt.axvline(x=THRESHOLD_BTCUSDT, color='teal',
-                    label='operative filter threshold', linestyle='--', alpha=0.3)
+                    label='operative filter THRESHOLD', linestyle='--', alpha=0.3)
 
         # mid price
         plt.axhline(y=MID_PRICE, color='indigo', linestyle='-', alpha=0.5)

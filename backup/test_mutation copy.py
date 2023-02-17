@@ -72,11 +72,11 @@ def mutate_strategy(filepath):
 
                         else: # float 
 
-                            if key == 'THESHOLD_SHORT':
-                                value = mutate_float(value=value, min=MIN_THESHOLD_SHORT, max=MAX_THESHOLD_SHORT)
+                            if key == 'THRESHOLD_SHORT':
+                                value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
 
-                            if key == 'THESHOLD_LONG':
-                                value = mutate_float(value=value, min=MIN_THESHOLD_LONG, max=MAX_THESHOLD_LONG)
+                            if key == 'THRESHOLD_LONG':
+                                value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
 
                             if key == 'SL_PRICE_BUFFER':
                                 value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)

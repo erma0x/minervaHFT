@@ -19,6 +19,25 @@ from configuration_backtest import *
 from collections import deque
 from copy import deepcopy
 
+def save_performance(path_strategy):
+    # salva la performance in un file a parte: s0.py -> salva su p0.py la performance
+    path_strategy = path_strategy.replace('./strategies/','').replace(ROOT_PATH*2,ROOT_PATH)
+    performance = 0
+
+    with open(path_strategy, "r") as file:
+        contents = file.readlines()
+        for i in range(len(contents)):
+            if 'fitness' in contents[i]:
+                fitness_raw = contents[i]
+                if '[' in fitness_raw:
+                    fitness_raw = fitness_raw.replace(']', '').replace('[', '')
+
+                performance = fitness_raw.split('=')[1].replace(' ','')
+
+    path_performance = path_strategy.replace(ROOT_PATH*2,ROOT_PATH).replace('strategies/s','strategies/p')
+    with open(path_performance, "w+") as file:
+        file.write(performance)
+
 # update single performace value in python file
 def update_performance(performance,performance_name,path):
     path = path.replace('./strategies/','')
@@ -35,17 +54,8 @@ def update_performance(performance,performance_name,path):
     #print("EXECUTION STRING: " + EXEC_IMPORT_STRING)
     exec(EXEC_IMPORT_STRING)
 
-def save_performance(performance,performance_name,path):
-    path = path.replace('./strategies/','')
-    performance = 0
-    with open(path.replace(ROOT_PATH*2,ROOT_PATH), "r") as file:
-        contents = file.readlines()
-        for i in range(len(contents)):
-            if performance_name in contents[i]:
-                performance = contents[i]
 
-    with open(path.replace(ROOT_PATH*2,ROOT_PATH).replace('strategies/s','strategies/p'), "w+") as file:
-        file.writelines(performance)
+
     
 
 def format_binance_data(data):
@@ -151,7 +161,8 @@ if __name__ == '__main__':
 
     TIME_COUNTER = 0
     counter_messages = 0
-    print(f"oracle {STRATEGY_PATH}")
+    print(f"🔹oracle {STRATEGY_PATH.replace(str(ROOT_PATH+'/strategies/s'),'').replace('.py','')}")
+
     while True:
         #######################################################################
         ###################         NEW DATA                ###################
@@ -204,7 +215,7 @@ if __name__ == '__main__':
             # A = prendo asks_prices dal prezzo piu basso e prendo i primi X1 in ordine CRESCENTE
             # B = prendo bids_prices dal prezzo piu basso e prendo i primi X1 in ordine DE-CRESCENTE
             # ENTRY algorithm
-            # se A > threshold e B > threshold
+            # se A > THRESHOLD e B > THRESHOLD
             # if A > THRESHOLD_VOLUME_BTCUSDT => short
             # if B > THRESHOLD_VOLUME_BTCUSDT  and  a/(a+b)   =>   long
 
@@ -216,10 +227,10 @@ if __name__ == '__main__':
 
             OPERATION_SIDE = ""
 
-            if OPERATION_PARAMETER > THESHOLD_SHORT and ALLOW_SHORT_OPERATIONS==True:
+            if OPERATION_PARAMETER > THRESHOLD_SHORT and ALLOW_SHORT_OPERATIONS==True:
                 OPERATION_SIDE = "SHORT" 
 
-            elif OPERATION_PARAMETER < THESHOLD_LONG and ALLOW_LONG_OPERATIONS==True:
+            elif OPERATION_PARAMETER < THRESHOLD_LONG and ALLOW_LONG_OPERATIONS==True:
                 OPERATION_SIDE = "LONG" 
             
             else:
@@ -250,9 +261,9 @@ if __name__ == '__main__':
             PEAK_DISTANCE = int(round(LIMIT_ORDER_BOOK / PEAK_DISTANCE_DIVISOR))
 
             peaks_asks, _1 = find_peaks(
-                asks_volumes, height=0, threshold=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
+                asks_volumes, height=0, threshold= THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
             peaks_bids, _2 = find_peaks(
-                bids_volumes, height=0, threshold=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
+                bids_volumes, height=0,  threshold=THRESHOLD_BTCUSDT, distance=PEAK_DISTANCE)
 
             # long or short
             REWARD_RISK_RATEO = 0
@@ -431,9 +442,9 @@ if __name__ == '__main__':
                 
                 plt.barh(bids_prices,bids_volumes, alpha=0.55, height=0.18, color='yellowgreen')
 
-                # threshold filter
+                # THRESHOLD filter
                 plt.axvline(x=THRESHOLD_BTCUSDT, color='teal',
-                            label='operative filter threshold', linestyle='--', alpha=0.9)
+                            label='operative filter THRESHOLD', linestyle='--', alpha=0.9)
 
                 plt.axhline(y=MID_PRICE, color='indigo', linestyle='--', alpha=0.6)
                 plt.axhline(y=min_ask_price, color='red', linestyle='--', alpha=0.6)

@@ -3,9 +3,9 @@
 #######################################################################
 MARKET = 'BTCUSDT'
 LIMIT_ORDER_BOOK =  500
-RELATIVE_THRESHOLD_DIV = 10 # int (2,100) "relative operative trading threshold refered to : max_local_volume/relative_threshold "
-THESHOLD_SHORT = 0.63
-THESHOLD_LONG = 0.37
+RELATIVE_THRESHOLD_DIV = 10 # int (2,100) "relative operative trading THRESHOLD refered to : max_local_volume/relative_THRESHOLD "
+THRESHOLD_SHORT = 0.63
+THRESHOLD_LONG = 0.37
 MAX_CONCURRENT_OPEN_TRADES = 6
 MAX_SECONDS_TRADE_OPEN = 360
 PEAK_DISTANCE_DIVISOR = 50 #"peak_distance = limit_orderbook/peak_distance_divisor"

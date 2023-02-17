@@ -219,9 +219,9 @@ if __name__ == '__main__':
             plt.barh(np.array(orderbook['bids'])[:, 0], np.array(orderbook['bids'])[
                     :, 1], alpha=0.75, height=0.18, color='yellowgreen')
 
-            # threshold filter
+            # THRESHOLD filter
             plt.axvline(x=THRESHOLD_BTCUSDT, color='teal',
-                        label='operative filter threshold', linestyle='--', alpha=0.3)
+                        label='operative filter THRESHOLD', linestyle='--', alpha=0.3)
 
             # mid price
             plt.axhline(y=MID_PRICE, color='indigo', linestyle='--', alpha=0.5)

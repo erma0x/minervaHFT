@@ -5,8 +5,8 @@ ROOT_PATH = sys.path[0]
 
 from datetime import datetime
 # STREAMER
-SAVE_LIVE_DATA_IN_SQL = True
-BACKTEST_MODE = False
+SAVE_LIVE_DATA_IN_SQL = False
+BACKTEST_MODE = True
 PRINT_TIMESTAMP = False
 
 ALLOW_LONG_OPERATIONS = True
@@ -22,7 +22,7 @@ SQL_DB_TIME = 13
 ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:SQL_DB_TIME].replace(' ','_')}.db" # hours
 
 # BACKTESTING MODE DATABASE PATH
-MOCK_ORDERBOOK_DATABASE_PATH = ROOT_PATH+f'/orderbook.db'
+MOCK_ORDERBOOK_DATABASE_PATH = ROOT_PATH+f'/databases/orderbook_small.db'
 
 counter_live_datapoints = 0
 
@@ -37,6 +37,7 @@ INITIAL_CAPITAL =  10_000
 EQUITY = INITIAL_CAPITAL
 REQUEST_TIME_INTERVAL = 0.4
 LEVERAGE = 1
+
 # PERPETUAL CONTRACT KUCOINFUTURES FEE STRUCTURE
 TAKER_FEES = 0.0006 # (0,1) % 
 MAKER_FEES = 0.0002 # (0,1) %

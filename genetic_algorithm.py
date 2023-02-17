@@ -6,8 +6,12 @@ from pprint import pprint
 import math
 import numpy as np
 
+from colorama import init as colorama_init
+from colorama import Fore
+from colorama import Style
+
 from configuration_backtest import ROOT_PATH
-from configuration_genetic_algorithm import *
+from configuration_genetic_algorithm import MUTATION_RATE, GENERATION_SIZE, POPULATION_SIZE
 from configuration_strategy import *
 
 from threading_utilities import run_strategies
@@ -71,11 +75,11 @@ def mutate_strategy(filepath):
 
                         else: # float 
 
-                            if key == 'THESHOLD_SHORT':
-                                value = mutate_float(value=value, min=MIN_THESHOLD_SHORT, max=MAX_THESHOLD_SHORT)
+                            if key == 'THRESHOLD_SHORT':
+                                value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
 
-                            if key == 'THESHOLD_LONG':
-                                value = mutate_float(value=value, min=MIN_THESHOLD_LONG, max=MAX_THESHOLD_LONG)
+                            if key == 'THRESHOLD_LONG':
+                                value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
 
                             if key == 'SL_PRICE_BUFFER':
                                 value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)
@@ -143,7 +147,7 @@ def crossover(parent1, parent2):
     child = {}
     for key in parent1:
         if key == 'fitness':
-            child[key] = (parent1[key]+parent2[key])/2
+            child[key] = 0 #(parent1[key]+parent2[key])/2
         if random.random() < 0.5:
             child[key] = parent1[key]
         else:
@@ -178,10 +182,14 @@ def get_best(population, fitness_function):
     sorted_population = sorted(population, key=fitness_function, reverse=True)
     return sorted_population[0]
 
-def save_best(population, fitness_function):
+def save_best(population, fitness_function, generation_number=0):
     best = get_best(population, fitness_function)
-    with open('best.py', 'w') as file_handle:
-        file_handle.write(str(best))
+    with open(f'best_{generation_number}.py', 'w') as f:
+        for key, value in best.items():
+            if type(value) == str:
+                f.write(f"{key} = '{value}'\n")
+            else:
+                f.write(f"{key} = {value}\n")
 
 # Funzione di fitness
 def fitness_function(individual):
@@ -195,9 +203,33 @@ def remove_folder(folder_path):
         print("Error removing the folder %s - %s." % (e.filename, e.strerror))
 
 
-if __name__ == '__main__':
+def monitor_performances(directory_path):
+    file_list = [f for f in os.listdir(directory_path) if f.endswith('.py')]
 
-    print(f' Minerva Genetic Algorithm \n')
+    results = []
+
+    for file_name in file_list:
+        with open(os.path.join(directory_path, file_name), 'r') as f:
+            lines = f.readlines()
+            last_line = lines[-1]
+            if 'fitness' in last_line:
+                if '[' in last_line:
+                    last_line = last_line.replace('[', '').replace(']', '')
+                fitness_value = float(last_line.split('=')[1].strip())
+                results.append((file_name, fitness_value))
+
+    results_sorted = sorted(results, key=lambda x: x[1], reverse=True)
+    
+    for file_name, fitness_value in results_sorted:
+        print(f" strategy {file_name.replace('.py','').replace('s','')} \t{fitness_value}")
+
+
+if __name__ == '__main__':
+    os.system('clear')
+    print(f'\n\t 🧬 Minerva genetic algorithm \n')
+    print(f'{Fore.LIGHTGREEN_EX} generation size {Style.RESET_ALL} {GENERATION_SIZE} ')
+    print(f'{Fore.LIGHTGREEN_EX} population size {Style.RESET_ALL} {POPULATION_SIZE} ')
+    print(f'{Fore.LIGHTGREEN_EX} mutation rate   {Style.RESET_ALL} {round(MUTATION_RATE*100,2)} % \n ')
 
     STRATEGY_PATH = ROOT_PATH +"/strategies/"
 
@@ -214,21 +246,16 @@ if __name__ == '__main__':
 
     population = get_population( filepath_strategies = STRATEGY_PATH )
 
-    for i in range(GENERATION_SIZE):
+    for generation_number in range(GENERATION_SIZE):
         
         population = genetic_algorithm( population = population , fitness_function = fitness_function, pop_size = POPULATION_SIZE)
         
-        # test with oracles the new population # MULTITHREAD and Test with oracles  => print(BEST_PE RFORMANCE, BEST_ID)
         run_strategies() 
-        # le strategie non si bloccano, devo fare blocchi di generazioni.
+                
+        save_best(population, fitness_function, generation_number = generation_number) 
 
-        # save the best strategy in a file
-        BEST = get_best(population, fitness_function)
-        get_best(population, fitness_function)
-        save_best(population, fitness_function) 
-        print(f"best      {BEST}")
-        print(f'len pop   {len(population)}')
-
-        # mutation 
-        # alla fine ho lasciato la cosa piu easy 
-        # e' stato un hackaton con me stesso della madonna  ############################### ############### >> WIN ? 
+        BEST_STRATEGY = get_best(population, fitness_function)
+        
+        print(f"\n best strategy generation {generation_number} \n {BEST_STRATEGY} \n")
+        
+    exit()

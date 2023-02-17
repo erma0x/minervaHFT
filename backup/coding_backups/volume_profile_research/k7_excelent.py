@@ -41,13 +41,13 @@ y = np.array(orderbook['asks'])[:, 1]
 
 THRESHOLD_BTCUSDT = max(y)/2
 
-peaks, _ = find_peaks(y, height=0, threshold=THRESHOLD_BTCUSDT, prominence=5)
+peaks, _ = find_peaks(y, height=0, THRESHOLD=THRESHOLD_BTCUSDT, prominence=5)
 
 
 # TROVA MINIMI
-# peaks, _ = find_peaks( -y, height = 0, threshold = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1
+# peaks, _ = find_peaks( -y, height = 0, THRESHOLD = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1
 
-# i picchi sono effettivamente quelli che vedo? -> setta threshold
+# i picchi sono effettivamente quelli che vedo? -> setta THRESHOLD
 # distanza dal picco precendente -> setta distanza
 
 # bin = x
