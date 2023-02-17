@@ -6,7 +6,7 @@ ROOT_PATH = sys.path[0]
 from datetime import datetime
 # STREAMER
 SAVE_LIVE_DATA_IN_SQL = True
-BACKTEST_MODE = True
+BACKTEST_MODE = False
 PRINT_TIMESTAMP = False
 
 ALLOW_LONG_OPERATIONS = True

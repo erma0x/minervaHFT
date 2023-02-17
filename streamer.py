@@ -106,7 +106,7 @@ def get_orderbook_depth(client,socket,ticker='BTCUSDT', limit_=200):
         if SAVE_LIVE_DATA_IN_SQL:
             orderbook_storage(ask=ask,bid=bid, database_path=ORDERBOOK_DATABASE)
 
-        time.sleep(0.1)
+        time.sleep(0.4)
     except:
         time.sleep(1)
     
