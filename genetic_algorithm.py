@@ -226,7 +226,7 @@ if __name__ == '__main__':
         BEST = get_best(population, fitness_function)
         get_best(population, fitness_function)
         save_best(population, fitness_function) 
-        print(f"best      {BEST['fitness']}")
+        print(f"best      {BEST}")
         print(f'len pop   {len(population)}')
 
         # mutation 

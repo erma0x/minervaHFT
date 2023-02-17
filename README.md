@@ -176,7 +176,11 @@ Un'unità di controllo deve avere i seguenti elementi −
 ## Deamons
 ### Start deamons with nohup
 
+```nohup python3 streamer.py > ./results.out 2>&1 &```
+
 ```nohup python3 teleryum.py > /path/to/custom.out &```
+
+
 
 ```nohup ./mn.sh > myscipt.sh &```
 

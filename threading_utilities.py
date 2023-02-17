@@ -8,7 +8,7 @@ from configuration_backtest import ROOT_PATH
 
 
 def run_file(file):
-    cmd = f"python3 oracle.py --s ./strategies/{file}"
+    cmd = f"python3 oracle.py --s {file}"
     subprocess.call(cmd, shell=True)
 
 
@@ -31,7 +31,10 @@ def run_strategies():
         exec(EXEC_IMPORT_STRING)       
 
         threads.append(t)
-        t.start()
+
+    t = threading.Thread(target=f"python3 streamer.py")
+    threads.append(t)
+    t.start()
 
     for t in threads:
         t.join()

@@ -66,7 +66,8 @@ def mock_datastreamer(socket):
 def on_message(ws, message):
     try:
         counter_live_datapoints +=1
-        print(f'\n\t Live data {counter_live_datapoints} ,  {round(counter_live_datapoints*0.4/60,2)} minutes')
+        if PRINT_TIMESTAMP:
+            print(f'\n\t Live data {counter_live_datapoints} ,  {round(counter_live_datapoints*0.4/60,2)} minutes')
         
         data = json.loads(message)
         ask = data['a'] 
@@ -87,24 +88,28 @@ def on_message(ws, message):
 
 
 def get_orderbook_depth(client,socket,ticker='BTCUSDT', limit_=200):
-    depth = client.get_order_book(symbol=ticker, limit=limit_)
-    data = format_binance_data(depth)
+    try:
+        depth = client.get_order_book(symbol=ticker, limit=limit_)
+        data = format_binance_data(depth)
 
-    ask = data['asks']
-    bid = data['bids']
-    timestamp = datetime.now()
+        ask = data['asks']
+        bid = data['bids']
+        timestamp = datetime.now()
+        
+        if PRINT_TIMESTAMP:
+            os.system('clear')
+            print(f'\n\tlive streaming! {timestamp}')  
+
+        datapoint_orderbook = str(timestamp)+'|'+str(ask)+'|'+str(bid)
+        socket.send(bytes(datapoint_orderbook.encode('utf-8')))
+        
+        if SAVE_LIVE_DATA_IN_SQL:
+            orderbook_storage(ask=ask,bid=bid, database_path=ORDERBOOK_DATABASE)
+
+        time.sleep(0.1)
+    except:
+        time.sleep(1)
     
-    os.system('clear')
-    print(f'\n\tlive streaming! {timestamp}')  
-
-    datapoint_orderbook = str(timestamp)+'|'+str(ask)+'|'+str(bid)
-    socket.send(bytes(datapoint_orderbook.encode('utf-8')))
-    
-    if SAVE_LIVE_DATA_IN_SQL:
-        orderbook_storage(ask=ask,bid=bid, database_path=ORDERBOOK_DATABASE)
-
-    time.sleep(0.1)
-
 
 if __name__ == '__main__':
     

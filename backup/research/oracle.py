@@ -89,13 +89,6 @@ if __name__ == '__main__':
 
     print('STARTING...')
 
-    #client = KafkaClient(hosts="localhost:9092")
-    #topic = client.topics['orderbook']
-    #consumer = topic.get_simple_consumer()
-    # PRODUCER orderbook = get_orderbook_depth(ticker=MARKET, limit_ = LIMIT_ORDER_BOOK)
-
-
-
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
@@ -142,13 +135,13 @@ if __name__ == '__main__':
         OPERATION_PARAMETER = A / ( A + B )
 
         OPERATION_SIDE = ""
-        MAX_LONG_POSITIONS = LONG_OPERATIONS <= math.floor(MAX_CONCURRENT_OPEN_TRADES/2)
-        MAX_SHORT_POSITIONS = SHORT_OPERATIONS <= math.floor(MAX_CONCURRENT_OPEN_TRADES/2)
+        MAX_LONG_POSITIONS = math.floor(MAX_CONCURRENT_OPEN_TRADES/2)
+        MAX_SHORT_POSITIONS = math.floor(MAX_CONCURRENT_OPEN_TRADES/2)
 
-        if OPERATION_PARAMETER > THESHOLD_SHORT and MAX_SHORT_POSITIONS:
+        if OPERATION_PARAMETER > THESHOLD_SHORT and MAX_SHORT_POSITIONS and SHORT_OPERATIONS:
             OPERATION_SIDE = "SHORT" 
 
-        elif OPERATION_PARAMETER < THESHOLD_LONG and MAX_LONG_POSITIONS:
+        elif OPERATION_PARAMETER < THESHOLD_LONG and MAX_LONG_POSITIONS and LONG_OPERATIONS:
             OPERATION_SIDE = "LONG" 
         
         else:

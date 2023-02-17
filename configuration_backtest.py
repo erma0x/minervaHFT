@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
+
+import sys
+ROOT_PATH = sys.path[0]
+
 from datetime import datetime
 # STREAMER
 SAVE_LIVE_DATA_IN_SQL = True
-BACKTEST_MODE = False
+BACKTEST_MODE = True
 PRINT_TIMESTAMP = False
 
-# CAMBIA ANCHE SU orderbook_storage() su database_utilities.py
+ALLOW_LONG_OPERATIONS = True
+ALLOW_SHORT_OPERATIONS = False
+
+
+# SAVE LIVE DATA IN THIS FILE
 ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:10].replace(' ','_')}.db" # days
 ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:16].replace(' ','_')}.db" # minutes
 ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:13].replace(' ','_')}.db" # hours
@@ -13,6 +21,8 @@ ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:13].replace(' ','_')}.db"
 SQL_DB_TIME = 13
 ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:SQL_DB_TIME].replace(' ','_')}.db" # hours
 
+# BACKTESTING MODE DATABASE PATH
+MOCK_ORDERBOOK_DATABASE_PATH = ROOT_PATH+f'/orderbook.db'
 
 counter_live_datapoints = 0
 
@@ -22,22 +32,20 @@ PRINT_BASIC_DATA = False
 PRINT_ALGORITHM = False
 PLOT_DATA = False
 
-import sys
+
 INITIAL_CAPITAL =  10_000
 EQUITY = INITIAL_CAPITAL
 REQUEST_TIME_INTERVAL = 0.4
-LEVERAGE = 10
+LEVERAGE = 1
 # PERPETUAL CONTRACT KUCOINFUTURES FEE STRUCTURE
 TAKER_FEES = 0.0006 # (0,1) % 
 MAKER_FEES = 0.0002 # (0,1) %
 
 # TIMING without visualizer 0.8 / 1.6 seconds
 # TIMING with    visualizer 2.3 / 3.0 seconds
-ROOT_PATH = sys.path[0]
 STRATEGY_FOLDER = ROOT_PATH+'/strategies/'
 
 WEBSOCKET_ORDERBOOK_BINANCE = 'wss://stream.binance.com:9443/ws'
-MOCK_ORDERBOOK_DATABASE_PATH = ROOT_PATH+f"/orderbook.db"
 DATASTREAMER_URL = "ipc://127.0.0.1:5678"
 ORACLE_URL = "ipc://127.0.0.1:5679"
 TRADING_OPERATION = {}

@@ -35,6 +35,18 @@ def update_performance(performance,performance_name,path):
     #print("EXECUTION STRING: " + EXEC_IMPORT_STRING)
     exec(EXEC_IMPORT_STRING)
 
+def save_performance(performance,performance_name,path):
+    path = path.replace('./strategies/','')
+    performance = 0
+    with open(path.replace(ROOT_PATH*2,ROOT_PATH), "r") as file:
+        contents = file.readlines()
+        for i in range(len(contents)):
+            if performance_name in contents[i]:
+                performance = contents[i]
+
+    with open(path.replace(ROOT_PATH*2,ROOT_PATH).replace('strategies/s','strategies/p'), "w+") as file:
+        file.writelines(performance)
+    
 
 def format_binance_data(data):
     ds = data
@@ -98,14 +110,15 @@ if __name__ == '__main__':
     starttime = datetime.now()
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--strategy_path", type=str, default='/strategies/s1.py', help="python stategy configuration file path for backtesting and optimization")
+    parser.add_argument("-s", "--strategy_path", type=str, default='./strategies/s0.py', help="python stategy configuration file path for backtesting and optimization")
     args = parser.parse_args()
     STRATEGY_PATH = args.strategy_path
-    STRATEGY_PATH = STRATEGY_PATH.replace('./strategies/','')
+    #STRATEGY_PATH = STRATEGY_PATH.replace('./strategies/','strategies.') # IF ORACLE
+    EXEC_IMPORT_MODULE = STRATEGY_PATH.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('.strategies','strategies').replace('.strategies.strategies','strategies').replace('strategies.strategies.','strategies.')
 
-
-    EXEC_IMPORT_STRING=f"""from {STRATEGY_PATH.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('.strategies','strategies').replace('.strategies.strategies','strategies')} import *"""
-
+    EXEC_IMPORT_STRING=f"""from {EXEC_IMPORT_MODULE} import *"""
+    #print(EXEC_IMPORT_STRING)
+    
     try:
         exec(EXEC_IMPORT_STRING)
     except SyntaxError:
@@ -138,7 +151,7 @@ if __name__ == '__main__':
 
     TIME_COUNTER = 0
     counter_messages = 0
-    print(f"minerva Oracle ID {STRATEGY_PATH.replace(ROOT_PATH+'/strategies/s','').replace('.py','')}")
+    print(f"oracle {STRATEGY_PATH}")
     while True:
         #######################################################################
         ###################         NEW DATA                ###################
@@ -147,7 +160,7 @@ if __name__ == '__main__':
         message = socket.recv()
         counter_messages+=1
 
-        if message == [b'kill']:
+        if message in (str([b'kill']),b'kill'):
             exit()
 
         #print(message)
@@ -203,10 +216,10 @@ if __name__ == '__main__':
 
             OPERATION_SIDE = ""
 
-            if OPERATION_PARAMETER > THESHOLD_SHORT and SHORT_OPERATIONS:
+            if OPERATION_PARAMETER > THESHOLD_SHORT and ALLOW_SHORT_OPERATIONS==True:
                 OPERATION_SIDE = "SHORT" 
 
-            elif OPERATION_PARAMETER < THESHOLD_LONG and LONG_OPERATIONS:
+            elif OPERATION_PARAMETER < THESHOLD_LONG and ALLOW_LONG_OPERATIONS==True:
                 OPERATION_SIDE = "LONG" 
             
             else:
@@ -389,6 +402,7 @@ if __name__ == '__main__':
                 TRADING_OPERATION_['running_time'] =  datetime.now() - START_TIME                     
                 TRADE_ORDERBOOK[ID_TRADE_] = TRADING_OPERATION_ 
 
+            
             endtime = datetime.now()
             EXECUTION_TIME = endtime - starttime
             #######################################################################
@@ -396,8 +410,8 @@ if __name__ == '__main__':
             #######################################################################
 
             
-
-
+            #
+            #
 
             #######################################################################
             ###################         PLOT DATA               ###################
