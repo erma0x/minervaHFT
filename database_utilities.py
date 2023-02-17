@@ -5,6 +5,8 @@ import json
 import time
 from decimal import Decimal
 import sqlite3
+from datetime import datetime
+from configuration_backtest import SQL_DB_TIME
 
 def dropzeros(number):
     # e.g 22000 --> Decimal('2.2E+4')
@@ -40,6 +42,8 @@ def orderbook_storage(ask,bid,database_path):
         bid (list): list of [[bid_price_level_1,quantity_level_1],[bid_price_level_2,quantity_level_2]]
         database_path (str): the databasepath as string example: "home/user/project/orderbook_BTC_USDT.db".
     """
+    database_path = f"orderbook_{str(datetime.now())[:SQL_DB_TIME].replace(' ','_')}.db" # minutes
+
     if not os.path.isfile(database_path):
       create_database(database_path)
     # Crea una nuova connessione al database

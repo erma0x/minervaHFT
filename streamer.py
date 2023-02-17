@@ -86,29 +86,23 @@ def on_message(ws, message):
 
 
 def get_orderbook_depth(client,socket,ticker='BTCUSDT', limit_=200):
-    try:
-        depth = client.get_order_book(symbol=ticker, limit=limit_)
-        data = format_binance_data(depth)
+    depth = client.get_order_book(symbol=ticker, limit=limit_)
+    data = format_binance_data(depth)
 
-        ask = data['asks']
-        bid = data['bids']
-        timestamp = datetime.now()
-        
-        os.system('clear')
-        print(f'\n\tlive streaming! {timestamp}')  
-
-        datapoint_orderbook = str(timestamp)+'|'+str(ask)+'|'+str(bid)
-        socket.send(bytes(datapoint_orderbook.encode('utf-8')))
-        
-        if SAVE_LIVE_DATA_IN_SQL:
-            orderbook_storage(ask=ask,bid=bid,database_path=ORDERBOOK_DATABASE)
-
-    except:
-        os.system('clear')
-        print('error connection with binance')    
+    ask = data['asks']
+    bid = data['bids']
+    timestamp = datetime.now()
     
-    finally:
-        time.sleep(0.1)
+    os.system('clear')
+    print(f'\n\tlive streaming! {timestamp}')  
+
+    datapoint_orderbook = str(timestamp)+'|'+str(ask)+'|'+str(bid)
+    socket.send(bytes(datapoint_orderbook.encode('utf-8')))
+    
+    if SAVE_LIVE_DATA_IN_SQL:
+        orderbook_storage(ask=ask,bid=bid, database_path=ORDERBOOK_DATABASE)
+
+    time.sleep(0.1)
 
 
 if __name__ == '__main__':

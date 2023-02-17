@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
+from datetime import datetime
 # STREAMER
-SAVE_LIVE_DATA_IN_SQL = False
-BACKTEST_MODE = True
-ORDERBOOK_DATABASE = f'orderbook_small.db'
+SAVE_LIVE_DATA_IN_SQL = True
+BACKTEST_MODE = False
+
+# CAMBIA ANCHE SU orderbook_storage() su database_utilities.py
+ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:10].replace(' ','_')}.db" # days
+ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:16].replace(' ','_')}.db" # minutes
+ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:13].replace(' ','_')}.db" # hours
+
+SQL_DB_TIME = 13
+ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:SQL_DB_TIME].replace(' ','_')}.db" # hours
+
+
 counter_live_datapoints = 0
 
 # ORACLE Trading algorithm 

@@ -179,9 +179,9 @@ def get_best(population, fitness_function):
     return sorted_population[0]
 
 def save_best(population, fitness_function):
-    sorted_population = sorted(population, key=fitness_function, reverse=True)
+    best = get_best(population, fitness_function)
     with open('best.py', 'w') as file_handle:
-        file_handle.write(str(sorted_population[0]))
+        file_handle.write(str(best))
 
 # Funzione di fitness
 def fitness_function(individual):

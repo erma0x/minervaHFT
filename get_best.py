@@ -9,6 +9,7 @@ def get_best(population, fitness_function):
     sorted_population = sorted(population, key=fitness_function, reverse=True)
     return sorted_population[0]
 
-population = get_population(STRATEGY_FOLDER)
-
-print(get_best(population=population,fitness_function = fitness_function))
+if __name__ == '__main__':
+    
+    population = get_population(STRATEGY_FOLDER)
+    print(get_best(population=population,fitness_function = fitness_function))

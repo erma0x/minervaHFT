@@ -53,5 +53,5 @@ def strategy_generator():
         file.write("PERCENTAGE_PER_TRADE = {}\n".format(PERCENTAGE_PER_TRADE))
         file.write("fitness = {}\n".format(fitness))
 
-
-strategy_generator()
+if __name__ == "__main__":
+    strategy_generator()
