@@ -1,11 +1,15 @@
 import unittest
 
-from configuration_backtest import TEST_STRATEGY_FOLDER
-from genetic_algorithm import get_list_filepath_strategies, remove_folder, create_folder
+from ..minerva.configuration_backtest import *
+
+from minerva.configuration_backtest import *
+
+from minerva.configuration_backtest import TEST_STRATEGY_FOLDER
+from minerva.genetic_algorithm import get_list_filepath_strategies, remove_folder, create_folder
 from minerva.strategy_generator import strategy_generator
 
 
-class Test(unittest.TestCase):
+class TestCreateRemoveFolders(unittest.TestCase):
     """
     remove_folder()
     create_folder()

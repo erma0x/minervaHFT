@@ -1,6 +1,7 @@
 import random
 import os
 from configuration_strategy import *
+from configuration_backtest import STRATEGIES_FOLDER
 
 def strategy_generator(strategies_folder):
     """
@@ -54,4 +55,4 @@ def strategy_generator(strategies_folder):
         file.write("fitness = {}\n".format(fitness))
 
 if __name__ == "__main__":
-    strategy_generator()
+    strategy_generator( strategies_folder = STRATEGIES_FOLDER )

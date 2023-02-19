@@ -15,9 +15,10 @@ from configuration_genetic_algorithm import MUTATION_RATE, GENERATION_SIZE, POPU
 from configuration_strategy import *
 
 from threading_utils import run_strategies
-from minerva.strategy_generator import strategy_generator
+from strategy_generator import strategy_generator
 
 def get_list_filepath_strategies(filepath_strategies):
+    """Returns a list of strategies fielpaths for a given filepath_strategies"""
     try:
         obj = os.scandir(filepath_strategies)
     except FileNotFoundError:
@@ -26,12 +27,16 @@ def get_list_filepath_strategies(filepath_strategies):
     
     for entry in obj :
         if entry.is_file() and entry.name not in ("__init__.py","__pycache__") :
-            list_of_files.append(filepath_strategies+entry.name)
+            list_of_files.append(filepath_strategies+'/'+entry.name)
     
     return list_of_files
 
 
 def mutate_int(value,min,max):
+    """
+    mutate an integer value between min and max 
+    with a random increament (-min,+min)
+    """
     increment = min
     value = int(value) + random.randint(-increment,increment)
     
@@ -44,6 +49,11 @@ def mutate_int(value,min,max):
     return value
 
 def mutate_float(value,min,max):
+    """
+    mutate a float value with a gaussian distribution
+    mu : mean its equal to the given value
+    sigma : standard deviation its equal to 1/10 of max value
+    """
     sigma = max/10
     mu = float(value)
     value = np.random.normal(mu, sigma, 1)
@@ -56,7 +66,9 @@ def mutate_float(value,min,max):
     return value
 
 def mutate_strategy(filepath_strategies):
-    """mutate file parameters with random values of the same type
+    """
+    Description:
+        mutate file parameters with random values of the same type
 
     Args:
         filepath (string): strategy file path strategies to mutate
@@ -132,8 +144,18 @@ def mutate_strategy(filepath_strategies):
 
 
 def get_population(filepath_strategies):
+    """
+    Description:
+        read the population in a file directory
+        and return a list of dictionaries
+
+    Args:
+        filepath_strategies (string): file path with the strategies
+
+    Returns:
+        population: list of individuals
+    """
     list_of_files = get_list_filepath_strategies(filepath_strategies=filepath_strategies)
-    
     population = []
     for filepath_strategy in list_of_files:
         with open(filepath_strategy, 'r') as f:
@@ -159,6 +181,18 @@ def get_population(filepath_strategies):
 
 
 def crossover(parent1, parent2):
+    """
+    Description:
+        get 2 random individuals within the given population and
+        switch the values between them. Set the new fitness value to 0.
+
+    Args:
+        parent1 (dictionary): trading strategy parameters dictionary 
+        parent2 (dictionary): trading strategy parameters dictionary 
+
+    Returns:
+        child (dictionary): trading strategy parameters dictionary 
+    """
     child = {}
     for key in parent1:
         if key == 'fitness':
@@ -172,11 +206,28 @@ def crossover(parent1, parent2):
 
     return child
 
-def genetic_algorithm(population, fitness_function,pop_size=2):
+
+
+def genetic_algorithm(population, fitness_function, generation_number = 0, pop_size = 2):
+    """
+    Description:
+        
+        get the population with the new fitness
+        select the population with the given fitness function
+        mutate the strategies
+        cross over
+
+    Args:
+        population (_type_): _description_
+        fitness_function (_type_): _description_
+        pop_size (int, optional): _description_. Defaults to 2.
+
+    Returns:
+        _type_: _description_
+    """
     
+    # SELECTION
     parents = selection(population, fitness_function)
-    
-    mutate_strategy(filepath_strategies = STRATEGIES_FOLDER)
     
     # CROSS OVER
     children = []
@@ -188,6 +239,18 @@ def genetic_algorithm(population, fitness_function,pop_size=2):
 
             if child not in children:
                 children.append(child)
+    
+    
+    NEW_GENERATION_FOLDER = STRATEGIES_FOLDER.replace(f'_{generation_number}.py',f'_{generation_number+1}.py')
+    
+    # SAVE INTO FILE
+    save_population(population = children, dir_name = NEW_GENERATION_FOLDER )
+
+    # MUTATE
+    mutate_strategy(filepath_strategies = NEW_GENERATION_FOLDER ) # generation +1
+    
+    # GET NEW GENERATION
+    children = get_population(filepath_strategies = NEW_GENERATION_FOLDER )
 
     return children
 
@@ -231,6 +294,34 @@ def create_folder(folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
+def save_population(population, dir_name):
+
+    os.makedirs(dir_name, exist_ok=True)
+
+    for i, item in enumerate(population):
+        filename = f"{dir_name}/strategy_{i}.py"
+        with open(filename, 'w') as f:
+            for key,value in item.items():
+                if '"' in str(value):
+                    f.write(f"{key} = '{value}'\n")
+
+                if "[" in str(value):
+                    f.write(f"{key} = '{float(str(value).replace('[','').replace(']',''))}'\n")
+
+                else:
+                    f.write(f"{key} = {value}\n")
+
+def get_best_initial_population(path, fitness_function, pop_size = 5 ):
+    POP = get_population(path)
+    #get_best(POP , fitness_function = fitness_function)
+    sorted_population = sorted(POP, key = fitness_function, reverse=True)
+    INITIAL_POPULATION = []
+
+    while len(INITIAL_POPULATION)< pop_size:
+        INITIAL_POPULATION.append(sorted_population[0])
+        sorted_population = sorted_population[1:]
+    
+    return INITIAL_POPULATION
 
 if __name__ == '__main__':
 
@@ -243,27 +334,35 @@ if __name__ == '__main__':
 
 
     # runs/expmeriment_1/generation_0/s0.py => runs/expmeriment_2/generation_0/s0.py
+    experiment_number = 0
+    experiment_directory = ROOT_PATH+f'/runs/experiment_{experiment_number}/'
+    while os.path.exists(experiment_directory):
+        experiment_number+=1
+        experiment_directory = ROOT_PATH+f'/runs/experiment_{experiment_number}/'
+
+    os.makedirs(experiment_directory, exist_ok=True)
+    generation_number = 0
+
     # remove for reanitialization
-    remove_folder(STRATEGIES_FOLDER)
+    # remove_folder(STRATEGIES_FOLDER)
 
     create_folder(STRATEGIES_FOLDER)
 
 
     if GET_BEST_INITIAL_POPULATION == True:
-        # TO IMPLEMENT
-        pass 
+        BEST_INITIAL_POP = get_best_initial_population(STRATEGIES_FOLDER,fitness_function=fitness_function, pop_size = POPULATION_SIZE)
 
     else:
         # initialize random population 
         for i in range(POPULATION_SIZE):
-            strategy_generator()
+            strategy_generator(STRATEGIES_FOLDER+'/')
 
-    POPULATION = get_population( filepath_strategies = STRATEGIES_FOLDER )
+    # POPULATION = get_population( filepath_strategies = STRATEGIES_FOLDER )
 
-    for generation_number in range(GENERATION_SIZE):
+    # for generation_number in range(1,GENERATION_SIZE+1):
         
-        POPULATION = genetic_algorithm( population = POPULATION , fitness_function = fitness_function, pop_size = POPULATION_SIZE)
+    #     POPULATION = genetic_algorithm( population = POPULATION , fitness_function = fitness_function, generation_number = generation_number, pop_size = POPULATION_SIZE)
         
-        run_strategies() 
+    #     run_strategies() 
 
-    exit()
+    # exit()

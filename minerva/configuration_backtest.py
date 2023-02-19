@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 from datetime import datetime
-import sys
+import sys, os
 ROOT_PATH = sys.path[0]
-STRATEGIES_FOLDER = ROOT_PATH +"/strategies/"
-TEST_STRATEGY_FOLDER = ROOT_PATH +"/test_strategies/"
+experiment_number=0
+STRATEGIES_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/generation_0'
+while os.path.exists(STRATEGIES_FOLDER):
+    experiment_number+=1
+    STRATEGIES_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/generation_0'
+
+TEST_STRATEGY_FOLDER = ROOT_PATH + "/test_strategies/"
+
+EXPERIMENT_NUMBER = 0
 
 # STREAMER
 SAVE_LIVE_DATA_IN_SQL = False

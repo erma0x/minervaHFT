@@ -1,33 +1,36 @@
-# Description
+# Minerva HFT
+
+## Description
 
 High frequency Automated Trading System with crypto volumes data driven system capital allocation.
 HFT with directional move on void of orderbook+traded volumes an positioningon the within the nearby orderbook+traded volumes. Price discovery through limit orderd book imbalances. Limit order front running.
 
 ## How to run
-# Install
+
+###  Install
 ```
 python3 setup.py install
 ```
 
-# Unit-test project 
+### Unit-test project 
 ```
 python3 -m unittest discover ./tests/
 ```
 
-# Evolve
+###  Evolve
 ``` 
 python3 observer_genetic_algorithm.py
 python3 genetic_algorithm.py
 ```
 
-# Trading
+### Trading
 ```
 python3 streamer.py
 python3 oracle.py -s ./strategies/strategy_10294.py
 python3 observer_oracle.py
 ```
 
-# Components
+## Components
 - streamer : backtest/live, save in SQL .db
 - oracle : find LONG/SHORT, TP/SL/ENTRY, RISK-MANAGER, TRADER
 

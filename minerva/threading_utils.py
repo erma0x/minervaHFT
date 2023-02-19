@@ -4,7 +4,7 @@ import threading
 import subprocess
 import os
 
-from configuration_backtest import ROOT_PATH
+from configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
 
 
 def run_oracle(file):
@@ -27,12 +27,13 @@ def find_files(path):
 
 
 def run_strategies():
-    files = find_files(ROOT_PATH+'/strategies/')
+    files = find_files(STRATEGIES_FOLDER)
     threads = []
     for file in files:
         t = threading.Thread(target=run_oracle, args=(file,))
 
-        EXEC_IMPORT_STRING=f"""from {file.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('.st','st')} import *"""
+        EXEC_IMPORT_STRING=f"""from {file.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('.runs','runs')} import *"""
+        #print('---> ',EXEC_IMPORT_STRING)
         exec(EXEC_IMPORT_STRING)       
         t.start()
         threads.append(t)
@@ -44,5 +45,5 @@ def run_strategies():
     for t in threads:
         t.join()
 
-# if __name__ == "__main__":
-#     run_strategies()
+if __name__ == "__main__":
+    run_strategies()
