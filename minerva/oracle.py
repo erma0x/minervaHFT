@@ -15,9 +15,15 @@ from scipy.signal import find_peaks
 import signal
 # project
 import zmq
-from configuration_backtest import *
 from collections import deque
 from copy import deepcopy
+
+import os,sys
+PROJECT_PATH = os.getcwd()
+sys.path.append(PROJECT_PATH.replace('minerva/',''))
+
+from minerva.configuration_backtest import *
+
 
 def save_performance(path_strategy):
     # salva la performance in un file a parte: s0.py -> salva su p0.py la performance
@@ -126,7 +132,7 @@ if __name__ == '__main__':
     #STRATEGY_PATH = STRATEGY_PATH.replace('./strategies/','strategies.') # IF ORACLE
     EXEC_IMPORT_MODULE = STRATEGY_PATH.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('.strategies','strategies').replace('.strategies.strategies','strategies').replace('strategies.strategies.','strategies.')
 
-    EXEC_IMPORT_STRING=f"""from {EXEC_IMPORT_MODULE} import *"""
+    EXEC_IMPORT_STRING=f"""from minerva{EXEC_IMPORT_MODULE} import *"""
     #print(EXEC_IMPORT_STRING)
     
     try:
@@ -219,9 +225,10 @@ if __name__ == '__main__':
             # if A > THRESHOLD_VOLUME_BTCUSDT => short
             # if B > THRESHOLD_VOLUME_BTCUSDT  and  a/(a+b)   =>   long
 
-            A = sum(asks_volumes[:50])*3+sum(asks_volumes[50:100])*2+sum(asks_volumes[100:150])
 
-            B = sum(bids_volumes[:50])*3+sum(asks_volumes[50:100])*2+sum(asks_volumes[100:150])
+            A = sum(asks_volumes[:W_I]) * K1 +sum(asks_volumes[W_I:W_I*2]) * K2 + sum(asks_volumes[W_I*2:W_I*3] * K3 )
+
+            B = sum(bids_volumes[:W_I]) * K1 +sum(asks_volumes[W_I:W_I*2]) * K2 + sum(asks_volumes[W_I*2:W_I*3] * K3 )
 
             OPERATION_PARAMETER = round(  A / ( A + B ) ,3 )
 
@@ -255,7 +262,8 @@ if __name__ == '__main__':
             BEST_BID_OFFER_PRICE = bids_prices[y_all] # highest bid
 
             #MICRO_PRICE = (BEST_ASK_OFFER_VOLUME*max_bid_price + BEST_BID_OFFER_VOLUME*min_ask_price) / BEST_ASK_OFFER_VOLUME+BEST_BID_OFFER_VOLUME
-            THRESHOLD_BTCUSDT = 0.2 # max(max_ask_absolute_volume, max_bid_absolute_volume) / RELATIVE_THRESHOLD_DIV
+            #THRESHOLD_BTCUSDT = 0.2
+            THRESHOLD_BTCUSDT = max(max_ask_absolute_volume, max_bid_absolute_volume) / RELATIVE_THRESHOLD_DIV
             
             # number of channels / int
             PEAK_DISTANCE = int(round(LIMIT_ORDER_BOOK / PEAK_DISTANCE_DIVISOR))
@@ -421,9 +429,6 @@ if __name__ == '__main__':
             #######################################################################
 
             
-            #
-            #
-
             #######################################################################
             ###################         PLOT DATA               ###################
             #######################################################################

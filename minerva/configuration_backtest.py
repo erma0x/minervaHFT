@@ -2,20 +2,29 @@
 from datetime import datetime
 import sys, os
 ROOT_PATH = sys.path[0]
-experiment_number=0
-STRATEGIES_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/generation_0'
+
+
+experiment_number = 0
+EXPERIMENT_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/'
+
+while os.path.exists(EXPERIMENT_FOLDER):
+    experiment_number+=1
+    EXPERIMENT_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/'
+
+
+STRATEGIES_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/generation_0/'
 while os.path.exists(STRATEGIES_FOLDER):
     experiment_number+=1
-    STRATEGIES_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/generation_0'
+    STRATEGIES_FOLDER = ROOT_PATH+f'/runs/experiment_{experiment_number}/generation_0/'
 
-TEST_STRATEGY_FOLDER = ROOT_PATH + "/test_strategies/"
+#TEST_STRATEGY_FOLDER = ROOT_PATH+f'/tests/runs/experiment_{experiment_number}/generation_0/'
 
 EXPERIMENT_NUMBER = 0
 
 # STREAMER
 SAVE_LIVE_DATA_IN_SQL = False
 BACKTEST_MODE = True
-PRINT_TIMESTAMP = False
+PRINT_TIMESTAMP = True
 
 ALLOW_LONG_OPERATIONS = True
 ALLOW_SHORT_OPERATIONS = False
@@ -27,6 +36,8 @@ ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:SQL_DB_TIME].replace(' ',
 
 # BACKTESTING MODE DATABASE PATH
 BACKTEST_ORDERBOOK_DATABASE = ROOT_PATH+f'/databases/orderbook.db'
+ORDERBOOK_BACKTESTING_FOLDER = ROOT_PATH+f'/databases/backtesting/'
+
 
 counter_live_datapoints = 0
 

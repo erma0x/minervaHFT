@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-import os
+
+# SUPER IMPORTANT
+# da mettere in ogni file coinvolto
+# lancia python3 minerva/genetic_algorithm.py
+# oppure python3 minerva/streamer.py --live True
+#      + python3 minerva/oracle --strategy ./strategies/balenottera_azzurra.py
+
+import os,sys
+PROJECT_PATH = os.getcwd()
+sys.path.append(PROJECT_PATH.replace('minerva/',''))
+
 import shutil
 import random
 from pprint import pprint
@@ -10,24 +20,23 @@ from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
 
-from configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
-from configuration_genetic_algorithm import MUTATION_RATE, GENERATION_SIZE, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION
-from configuration_strategy import *
+from minerva.configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
+from minerva.configuration_genetic_algorithm import MUTATION_RATE, GENERATION_SIZE, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION
+from minerva.configuration_strategy import *
+from minerva.threading_utils import run_strategies
+from minerva.strategy_generator import strategy_generator
 
-from threading_utils import run_strategies
-from strategy_generator import strategy_generator
-
-def get_list_filepath_strategies(filepath_strategies):
+def get_filepaths_list(filepath_to_check: str):
     """Returns a list of strategies fielpaths for a given filepath_strategies"""
     try:
-        obj = os.scandir(filepath_strategies)
+        obj = os.scandir(filepath_to_check)
     except FileNotFoundError:
         obj = []
     list_of_files = []
     
     for entry in obj :
         if entry.is_file() and entry.name not in ("__init__.py","__pycache__") :
-            list_of_files.append(filepath_strategies+'/'+entry.name)
+            list_of_files.append(filepath_to_check+'/'+entry.name)
     
     return list_of_files
 
@@ -57,91 +66,63 @@ def mutate_float(value,min,max):
     sigma = max/10
     mu = float(value)
     value = np.random.normal(mu, sigma, 1)
-    if value >= max:
-        value = value - max / random.uniform(2.0,4.0)
+    while value >= max:
+        value = value - max / 100
 
-    if value <= min:
-        value = value + max / random.uniform(2.0,4.0)
+    while value <= min:
+        value = value + max / 100
 
-    return value
+    return float(value)
 
-def mutate_strategy(filepath_strategies):
-    """
-    Description:
-        mutate file parameters with random values of the same type
+def mutate_strategy(population):
 
-    Args:
-        filepath (string): strategy file path strategies to mutate
-    """
-    list_of_files = get_list_filepath_strategies(filepath_strategies=filepath_strategies)
-
-    for filepath in list_of_files:
+    for parent
+    for key,value in range(len(population)):
         individual = {}
-        with open(filepath, "r") as file:
-            data = file.readlines()
-            for i in range(len(data)):
-                if '=' in data[i]:
-                    data[i] = data[i].replace('\n', '').replace(' ', '')
-                    key = data[i].split('=')[0]
-                    value = data[i].split('=')[1]
-                    
-                    if '[' in str(value):
-                        value = str(value[1:-1])
 
-                    # MUTATION
-                    if random.random() < MUTATION_RATE:
-                        if key not in ('MARKET','fitness'):
+        if random.random() < MUTATION_RATE:
+            if key == 'LIMIT_ORDER_BOOK':
+                value = mutate_int(value=value, min=MIN_LIMIT_ORDERBOOK_DATA, max=MAX_LIMIT_ORDERBOOK_DATA)
 
-                            if '.' not in value: # int
-                                if key == 'LIMIT_ORDER_BOOK':
-                                    value = mutate_int(value=value, min=MIN_LIMIT_ORDERBOOK_DATA, max=MAX_LIMIT_ORDERBOOK_DATA)
+            if key == 'RELATIVE_THRESHOLD_DIV':
+                value = mutate_int(value=value, min=MIN_RELATIVE_THRESHOLD_DIV, max=MAX_RELATIVE_THRESHOLD_DIV)
 
-                                if key == 'RELATIVE_THRESHOLD_DIV':
-                                    value = mutate_int(value=value, min=MIN_RELATIVE_THRESHOLD_DIV, max=MAX_RELATIVE_THRESHOLD_DIV)
+            if key == 'MAX_SECONDS_TRADE_OPEN':
+                value = mutate_int(value=value, min=MIN_MAX_SECONDS_TRADE_OPEN, max=MAX_MAX_SECONDS_TRADE_OPEN)
 
-                                if key == 'MAX_SECONDS_TRADE_OPEN':
-                                    value = mutate_int(value=value, min=MIN_MAX_SECONDS_TRADE_OPEN, max=MAX_MAX_SECONDS_TRADE_OPEN)
+            if key == 'PEAK_DISTANCE_DIVISOR':
+                value = mutate_int(value=value, min=MIN_PEAK_DISTANCE_DIVISOR, max=MAX_PEAK_DISTANCE_DIVISOR)
 
-                                if key == 'PEAK_DISTANCE_DIVISOR':
-                                    value = mutate_int(value=value, min=MIN_PEAK_DISTANCE_DIVISOR, max=MAX_PEAK_DISTANCE_DIVISOR)
+            if key == 'THRESHOLD_SHORT':
+                value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
 
-                            else: # float 
+            if key == 'THRESHOLD_LONG':
+                value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
 
-                                if key == 'THRESHOLD_SHORT':
-                                    value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
+            if key == 'SL_PRICE_BUFFER':
+                value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)
 
-                                if key == 'THRESHOLD_LONG':
-                                    value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
+            if key == 'TP_PRICE_BUFFER':
+                value = mutate_float(value=value, min=MIN_TP_PRICE_BUFFER, max=MAX_TP_PRICE_BUFFER)
 
-                                if key == 'SL_PRICE_BUFFER':
-                                    value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)
+            if key == 'PERCENTAGE_PER_TRADE':
+                value = mutate_float(value=value, min=MIN_PERCENTAGE_PER_TRADE, max=MIN_PERCENTAGE_PER_TRADE)
 
-                                if key == 'TP_PRICE_BUFFER':
-                                    value = mutate_float(value=value, min=MIN_TP_PRICE_BUFFER, max=MAX_TP_PRICE_BUFFER)
+            if key == 'K1':
+                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-                                if key == 'PERCENTAGE_PER_TRADE':
-                                    value = mutate_float(value=value, min=MIN_PERCENTAGE_PER_TRADE, max=MIN_PERCENTAGE_PER_TRADE)
+            if key == 'K2':
+                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-                                individual[key] = value
+            if key == 'K3':
+                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-                        else:
-                            individual[key] = value    
-                    
-                    # CONTINUE
-                    else: 
-                        if key != 'MARKET':
-                            if '.' not in value:
-                                individual[key] = int(value)
-                            else:
-                                individual[key] = float(value)
+            if key == 'W_I':
+                value = mutate_float(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
 
-                        else:
-                            individual[key] = value
+            individual[key] = value
 
-        with open(filepath, "w") as f:
-            for key, value in individual.items():
-                f.write(f"{key} = {value}\n")
-
+    return population
 
 def get_population(filepath_strategies):
     """
@@ -155,7 +136,7 @@ def get_population(filepath_strategies):
     Returns:
         population: list of individuals
     """
-    list_of_files = get_list_filepath_strategies(filepath_strategies=filepath_strategies)
+    list_of_files = get_filepaths_list(filepath_to_check = filepath_strategies )
     population = []
     for filepath_strategy in list_of_files:
         with open(filepath_strategy, 'r') as f:
@@ -166,8 +147,7 @@ def get_population(filepath_strategies):
                     data[i] = data[i].replace('\n', '').replace(' ', '')
                     key = data[i].split('=')[0]
                     value = data[i].split('=')[1]
-                    if '[' in str(value):
-                        value = str(value[1:-1])
+
                     if key != 'MARKET':
                         if '.' not in value: # int
                             individual[key] = int(value)
@@ -194,13 +174,10 @@ def crossover(parent1, parent2):
         child (dictionary): trading strategy parameters dictionary 
     """
     child = {}
-    for key in parent1:
+    for key in parent1.keys():
         if key == 'fitness':
-            child[key] = -0.001   # (parent1[key]+parent2[key])/2
+            child[key] =  (parent1[key]+parent2[key])/2
 
-        if random.random() < 0.5:
-            child[key] = parent1[key]
-        
         else:
             child[key] = parent2[key]
 
@@ -240,18 +217,14 @@ def genetic_algorithm(population, fitness_function, generation_number = 0, pop_s
             if child not in children:
                 children.append(child)
     
-    
-    NEW_GENERATION_FOLDER = STRATEGIES_FOLDER.replace(f'_{generation_number}.py',f'_{generation_number+1}.py')
-    
+
     # SAVE INTO FILE
+    NEW_GENERATION_FOLDER = STRATEGIES_FOLDER.replace(f'generation_{generation_number}',f'generation_{generation_number+1}')
     save_population(population = children, dir_name = NEW_GENERATION_FOLDER )
+    mutate_strategy(filepath_strategies = NEW_GENERATION_FOLDER ) # generation + 1
 
-    # MUTATE
-    mutate_strategy(filepath_strategies = NEW_GENERATION_FOLDER ) # generation +1
-    
-    # GET NEW GENERATION
+    # NEW GENERATION
     children = get_population(filepath_strategies = NEW_GENERATION_FOLDER )
-
     return children
 
 def selection(population, fitness_function):
@@ -265,58 +238,30 @@ def get_best(population, fitness_function):
     sorted_population = sorted(population, key=fitness_function, reverse=True)
     return sorted_population[0]
 
-def save_best(population, fitness_function):
-    best = get_best(population, fitness_function)
-
-    best_number_counter = 0
-    path = f'./bests/best_{best_number_counter}.py'
-    while os.path.exists(path):
-        best_number_counter+=1
-        path = f'./bests/best_{best_number_counter}.py'
-
-    with open(path, 'w') as f:
-        for key, value in best.items():
-            if type(value) == str:
-                f.write(f"{key} = '{value}'\n")
-            else:
-                f.write(f"{key} = {value}\n")
-
 
 def remove_folder(folder_path):
-    # Try to remove the tree; if it fails, throw an error using try...except.
     try:
         shutil.rmtree(folder_path)
     except OSError as e:
-        pass
-        #print("minerva-Error removing the folder %s - %s." % (e.filename, e.strerror))
+        print("===> Error removing the folder %s - %s." % (e.filename, e.strerror))
 
 def create_folder(folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
 def save_population(population, dir_name):
-
-    os.makedirs(dir_name, exist_ok=True)
-
+    create_folder(dir_name) #os.makedirs(dir_name, exist_ok=True)
     for i, item in enumerate(population):
         filename = f"{dir_name}/strategy_{i}.py"
         with open(filename, 'w') as f:
             for key,value in item.items():
-                if '"' in str(value):
-                    f.write(f"{key} = '{value}'\n")
-
-                if "[" in str(value):
-                    f.write(f"{key} = '{float(str(value).replace('[','').replace(']',''))}'\n")
-
-                else:
-                    f.write(f"{key} = {value}\n")
+               f.write(f"{key} = {value}\n")
+               
 
 def get_best_initial_population(path, fitness_function, pop_size = 5 ):
     POP = get_population(path)
-    #get_best(POP , fitness_function = fitness_function)
     sorted_population = sorted(POP, key = fitness_function, reverse=True)
     INITIAL_POPULATION = []
-
     while len(INITIAL_POPULATION)< pop_size:
         INITIAL_POPULATION.append(sorted_population[0])
         sorted_population = sorted_population[1:]
@@ -357,12 +302,12 @@ if __name__ == '__main__':
         for i in range(POPULATION_SIZE):
             strategy_generator(STRATEGIES_FOLDER+'/')
 
-    # POPULATION = get_population( filepath_strategies = STRATEGIES_FOLDER )
+    POPULATION = get_population( filepath_strategies = STRATEGIES_FOLDER )
 
-    # for generation_number in range(1,GENERATION_SIZE+1):
-        
-    #     POPULATION = genetic_algorithm( population = POPULATION , fitness_function = fitness_function, generation_number = generation_number, pop_size = POPULATION_SIZE)
-        
-    #     run_strategies() 
+    for generation_number in range(1,GENERATION_SIZE+1):
 
-    # exit()
+        run_strategies() 
+
+        POPULATION = genetic_algorithm( population = POPULATION , fitness_function = fitness_function, generation_number = generation_number, pop_size = POPULATION_SIZE)
+        
+    exit()

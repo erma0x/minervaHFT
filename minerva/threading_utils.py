@@ -4,16 +4,16 @@ import threading
 import subprocess
 import os
 
-from configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
+from minerva.configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
 
 
 def run_oracle(file):
-    cmd = f"python3 oracle.py --s {file}"
+    cmd = f"python3 minerva/oracle.py --s {file}"
     subprocess.call(cmd, shell=True)
 
 
 def run_streamer():
-    cmd = f"python3 streamer.py"
+    cmd = f"python3 minerva/streamer.py"
     subprocess.call(cmd, shell=True)
 
 

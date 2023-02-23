@@ -1,7 +1,10 @@
 import random
 import os
-from configuration_strategy import *
-from configuration_backtest import STRATEGIES_FOLDER
+import os,sys
+PROJECT_PATH = os.getcwd()
+sys.path.append(PROJECT_PATH.replace('minerva/',''))
+from minerva.configuration_strategy import *
+from minerva.configuration_backtest import STRATEGIES_FOLDER
 
 def strategy_generator(strategies_folder):
     """
@@ -31,7 +34,11 @@ def strategy_generator(strategies_folder):
     SL_PRICE_BUFFER = round(random.uniform(MIN_SL_PRICE_BUFFER, MAX_SL_PRICE_BUFFER), 2) #"add absolute price buffer for the stop loss, is the distance in price from the sl peak"
     TP_PRICE_BUFFER = round(random.uniform(MIN_TP_PRICE_BUFFER, MAX_TP_PRICE_BUFFER), 2) #"add absolute price buffer for the take profit, is the distance in price from the tp peak"
     PERCENTAGE_PER_TRADE = round(random.uniform(MIN_PERCENTAGE_PER_TRADE, MAX_PERCENTAGE_PER_TRADE), 4) # 0.01 = 1%
-    
+    K1 = round(random.uniform(MIN_K, MAX_K), 4)
+    K2 = round(random.uniform(MIN_K, MAX_K), 4)
+    K3 = round(random.uniform(MIN_K, MAX_K), 4)
+    W_I = random.randint(MIN_WINDOW_INCREMENT, MAX_WINDOW_INCREMENT) # WINDOW_INCREMENT
+
     fitness = 0
 
     N_STRATEGY = 0
@@ -42,7 +49,7 @@ def strategy_generator(strategies_folder):
         PATH_FILE = PATH_FILE.replace(f'strategy_{N_STRATEGY-1}',f'strategy_{N_STRATEGY}')
 
     with open(PATH_FILE, "w") as file:
-        file.write("MARKET = '{}'\n".format(MARKET))
+        file.write("""MARKET = "{}"\n""".format(MARKET))
         file.write("LIMIT_ORDER_BOOK = {}\n".format(LIMIT_ORDERBOOK))
         file.write("RELATIVE_THRESHOLD_DIV = {}\n".format(RELATIVE_THRESHOLD_DIV))
         file.write("THRESHOLD_SHORT = {}\n".format(THRESHOLD_SHORT))
@@ -52,6 +59,10 @@ def strategy_generator(strategies_folder):
         file.write("SL_PRICE_BUFFER = {}\n".format(SL_PRICE_BUFFER))
         file.write("TP_PRICE_BUFFER = {}\n".format(TP_PRICE_BUFFER))
         file.write("PERCENTAGE_PER_TRADE = {}\n".format(PERCENTAGE_PER_TRADE))
+        file.write("K1 = {}\n".format(K1))
+        file.write("K2 = {}\n".format(K2))
+        file.write("K3 = {}\n".format(K3))
+        file.write("W_I = {}\n".format(W_I))
         file.write("fitness = {}\n".format(fitness))
 
 if __name__ == "__main__":

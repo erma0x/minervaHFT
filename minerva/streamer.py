@@ -14,10 +14,16 @@ import zmq
 import signal
 from binance import Client as binance_client
 
-from configuration_backtest import *
-from configuration_strategy import MARKET
-from oracle import format_binance_data
-from database_utils import orderbook_storage
+import os,sys
+PROJECT_PATH = os.getcwd()
+sys.path.append(PROJECT_PATH.replace('minerva/',''))
+
+from minerva.configuration_backtest import *
+from minerva.configuration_strategy import MARKET
+from minerva.oracle import format_binance_data
+from minerva.database_utils import orderbook_storage
+from minerva.genetic_algorithm import get_filepaths_list
+from minerva.configuration_backtest import ORDERBOOK_BACKTESTING_FOLDER
 
 
 def get_orderbook_database(database_path):
@@ -27,42 +33,64 @@ def get_orderbook_database(database_path):
     results = pd.read_sql_query(QUERY,con=conn)
     return results
 
+
+def get_file_date(filepath):
+    """get the filepath date
+
+    Args:
+        database filepath (string): example: orderbook_2023-02-15_23:56
+
+    Returns:
+        date (string): 2023-02-15_23
+    """
+    date_string = filepath.split("_")[1]  # year-month-day
+    hours_string = filepath.split("_")[2].split(".")[0][:2] # hours
+    dt = datetime.strptime(date_string + " " + hours_string, "%Y-%m-%d %H")
+    return dt
+
+
+
 def fake_streamer(socket):
+    list_of_database_files = get_filepaths_list(filepath_to_check=ORDERBOOK_BACKTESTING_FOLDER)
+    sorted_filepaths = sorted(list_of_database_files, key=get_file_date)
 
-    orderbook = get_orderbook_database(database_path = BACKTEST_ORDERBOOK_DATABASE)
-    ask_generator = (item for item in orderbook.ask)
-    bid_generator = (item for item in orderbook.bid)
-    time_generator = (item for item in orderbook.timestamp)
-    counter=0
-    START_TIME = datetime.now()
 
-    while True:        
+    for file_db in sorted_filepaths:
+        orderbook = get_orderbook_database(database_path = file_db)
+        ask_generator = (item for item in orderbook.ask)
+        bid_generator = (item for item in orderbook.bid)
+        time_generator = (item for item in orderbook.timestamp)
+        counter=0
+        START_TIME = datetime.now()
 
-        try:
+        for i in time_generator:        
+
             if PRINT_TIMESTAMP:
                 os.system('clear')
                 counter+=1
-                print('🔶 Backtest streamer')
+                print(f'\n 🚀 backtester streaming...\n')
+                print(f'backtesting {file_db}')
                 print(f" data      {counter}")
                 print(f" minutes   {round(counter*0.4/60,2)}")
                 print(f" exec time {str(datetime.now()-START_TIME)[:-7]}")
 
-            ask = next(ask_generator)
-            bid = next(bid_generator)
-            timestamp = next(time_generator)
-            
-            datapoint_orderbook = str(timestamp)+'|'+str(ask)+'|'+str(bid)
-            #my_list_bytes = json.dumps(datapoint_orderbook)
-            socket.send(bytes(datapoint_orderbook.encode('utf-8')))
-            #producer.send_string(datapoint_orderbook)
+            try:
+                ask = next(ask_generator)
+                bid = next(bid_generator)
+                timestamp = next(time_generator)
+                
+                datapoint_orderbook = str(timestamp)+'|'+str(ask)+'|'+str(bid)
+                #my_list_bytes = json.dumps(datapoint_orderbook)
+                socket.send(bytes(datapoint_orderbook.encode('utf-8')))
+                #producer.send_string(datapoint_orderbook)
 
-        except StopIteration as stop_error:
-            socket.send(b'kill')
-            exit()
+            except StopIteration:
+                break
 
-        finally:
-            time.sleep(0.01)
+            time.sleep(0.005)
 
+    socket.send(b'kill')
+    exit()
 
 def on_message(ws, message):
     # Funzione di callback per il ricevimento dei dati dal websocket
@@ -118,10 +146,7 @@ if __name__ == '__main__':
         context = zmq.Context()
         socket = context.socket(zmq.PUB)
         socket.bind('tcp://*:5555')
-
-        print(f'\n 🚀 backtester streaming...\n')
-        while True:
-            fake_streamer(socket=socket)
+        fake_streamer(socket=socket)
 
 
     if not BACKTEST_MODE:

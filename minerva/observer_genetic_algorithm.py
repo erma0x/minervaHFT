@@ -1,13 +1,13 @@
 import os
-from configuration_backtest import ROOT_PATH
 import time
+from pprint import pprint
+
 from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
-from genetic_algorithm import get_best, get_population, fitness_function, save_best, get_list_filepath_strategies
 
-from configuration_backtest import STRATEGY_FOLDER
-from pprint import pprint
+from genetic_algorithm import get_best, get_population, fitness_function, save_best, get_list_filepath_strategies
+from configuration_backtest import STRATEGY_FOLDER,ROOT_PATH
 
 
 def monitor_performances(directory_path):
