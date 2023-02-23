@@ -71,57 +71,56 @@ def mutate_float(value,min,max):
 
     while value <= min:
         value = value + max / 100
-
     return float(value)
 
+
 def mutate_strategy(population):
+    new_population = []
+    for i in population:
+        individual = []
+        for key, value in individual.items():
+            if random.random() < MUTATION_RATE:
+                if key == 'LIMIT_ORDER_BOOK':
+                    value = mutate_int(value=value, min=MIN_LIMIT_ORDERBOOK_DATA, max=MAX_LIMIT_ORDERBOOK_DATA)
 
-    for parent
-    for key,value in range(len(population)):
-        individual = {}
+                if key == 'RELATIVE_THRESHOLD_DIV':
+                    value = mutate_int(value=value, min=MIN_RELATIVE_THRESHOLD_DIV, max=MAX_RELATIVE_THRESHOLD_DIV)
 
-        if random.random() < MUTATION_RATE:
-            if key == 'LIMIT_ORDER_BOOK':
-                value = mutate_int(value=value, min=MIN_LIMIT_ORDERBOOK_DATA, max=MAX_LIMIT_ORDERBOOK_DATA)
+                if key == 'MAX_SECONDS_TRADE_OPEN':
+                    value = mutate_int(value=value, min=MIN_MAX_SECONDS_TRADE_OPEN, max=MAX_MAX_SECONDS_TRADE_OPEN)
 
-            if key == 'RELATIVE_THRESHOLD_DIV':
-                value = mutate_int(value=value, min=MIN_RELATIVE_THRESHOLD_DIV, max=MAX_RELATIVE_THRESHOLD_DIV)
+                if key == 'PEAK_DISTANCE_DIVISOR':
+                    value = mutate_int(value=value, min=MIN_PEAK_DISTANCE_DIVISOR, max=MAX_PEAK_DISTANCE_DIVISOR)
 
-            if key == 'MAX_SECONDS_TRADE_OPEN':
-                value = mutate_int(value=value, min=MIN_MAX_SECONDS_TRADE_OPEN, max=MAX_MAX_SECONDS_TRADE_OPEN)
+                if key == 'THRESHOLD_SHORT':
+                    value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
 
-            if key == 'PEAK_DISTANCE_DIVISOR':
-                value = mutate_int(value=value, min=MIN_PEAK_DISTANCE_DIVISOR, max=MAX_PEAK_DISTANCE_DIVISOR)
+                if key == 'THRESHOLD_LONG':
+                    value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
 
-            if key == 'THRESHOLD_SHORT':
-                value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
+                if key == 'SL_PRICE_BUFFER':
+                    value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)
 
-            if key == 'THRESHOLD_LONG':
-                value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
+                if key == 'TP_PRICE_BUFFER':
+                    value = mutate_float(value=value, min=MIN_TP_PRICE_BUFFER, max=MAX_TP_PRICE_BUFFER)
 
-            if key == 'SL_PRICE_BUFFER':
-                value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)
+                if key == 'PERCENTAGE_PER_TRADE':
+                    value = mutate_float(value=value, min=MIN_PERCENTAGE_PER_TRADE, max=MIN_PERCENTAGE_PER_TRADE)
 
-            if key == 'TP_PRICE_BUFFER':
-                value = mutate_float(value=value, min=MIN_TP_PRICE_BUFFER, max=MAX_TP_PRICE_BUFFER)
+                if key == 'K1':
+                    value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-            if key == 'PERCENTAGE_PER_TRADE':
-                value = mutate_float(value=value, min=MIN_PERCENTAGE_PER_TRADE, max=MIN_PERCENTAGE_PER_TRADE)
+                if key == 'K2':
+                    value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-            if key == 'K1':
-                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
+                if key == 'K3':
+                    value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-            if key == 'K2':
-                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
-
-            if key == 'K3':
-                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
-
-            if key == 'W_I':
-                value = mutate_float(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
+                if key == 'W_I':
+                    value = mutate_float(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
 
             individual[key] = value
-
+        new_population.append(individual)
     return population
 
 def get_population(filepath_strategies):
