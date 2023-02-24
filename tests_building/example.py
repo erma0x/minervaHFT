@@ -1,4 +1,6 @@
 import unittest
+from unittest.mock import patch
+
 import os
 import sys
 PROJECT_PATH = os.getcwd()
@@ -18,12 +20,26 @@ class TestFileManeagement(unittest.TestCase):
     function_b = function()
     
     @classmethod
+    def setUpClass(cls):
+        print('setUpClass')
+
+    @classmethod
+    def tearDownClass(cls):
+        print('tearDownClass')
+
+    @classmethod
     def setUp(self):
+        print('setUp')
+        self.calculation = function(8, 2)
+
+    @classmethod
+    def tearDown(self):
+        print('tearDown')
         self.calculation = function(8, 2)
 
     def test_0_get_object(self):
         self.assertIsNotNone(self.variable) 
-
+        self.assertRaises('TypeError',function())
 
 class TestGetAreaRectangle(unittest.TestCase):
     def runTest(self):

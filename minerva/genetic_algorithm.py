@@ -77,8 +77,8 @@ def mutate_float(value,min,max):
 def mutate_strategy(population):
     new_population = []
     for i in population:
-        individual = []
-        for key, value in individual.items():
+        individual = {}
+        for key, value in i.items():
             if random.random() < MUTATION_RATE:
                 if key == 'LIMIT_ORDER_BOOK':
                     value = mutate_int(value=value, min=MIN_LIMIT_ORDERBOOK_DATA, max=MAX_LIMIT_ORDERBOOK_DATA)
@@ -118,10 +118,10 @@ def mutate_strategy(population):
 
                 if key == 'W_I':
                     value = mutate_float(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
-
             individual[key] = value
         new_population.append(individual)
-    return population
+    return new_population
+
 
 def get_population(filepath_strategies):
     """
@@ -185,27 +185,9 @@ def crossover(parent1, parent2):
 
 
 def genetic_algorithm(population, fitness_function, generation_number = 0, pop_size = 2):
-    """
-    Description:
-        
-        get the population with the new fitness
-        select the population with the given fitness function
-        mutate the strategies
-        cross over
 
-    Args:
-        population (_type_): _description_
-        fitness_function (_type_): _description_
-        pop_size (int, optional): _description_. Defaults to 2.
-
-    Returns:
-        _type_: _description_
-    """
-    
-    # SELECTION
     parents = selection(population, fitness_function)
     
-    # CROSS OVER
     children = []
     if pop_size > len(children):
         while pop_size > len(children):
@@ -216,13 +198,9 @@ def genetic_algorithm(population, fitness_function, generation_number = 0, pop_s
             if child not in children:
                 children.append(child)
     
-
-    # SAVE INTO FILE
+    mutated_children = mutate_strategy(children) # generation + 1
     NEW_GENERATION_FOLDER = STRATEGIES_FOLDER.replace(f'generation_{generation_number}',f'generation_{generation_number+1}')
-    save_population(population = children, dir_name = NEW_GENERATION_FOLDER )
-    mutate_strategy(filepath_strategies = NEW_GENERATION_FOLDER ) # generation + 1
-
-    # NEW GENERATION
+    save_population(population = mutated_children, dir_name = NEW_GENERATION_FOLDER )
     children = get_population(filepath_strategies = NEW_GENERATION_FOLDER )
     return children
 

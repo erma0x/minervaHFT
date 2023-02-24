@@ -8,14 +8,15 @@ HFT with directional move on void of orderbook+traded volumes an positioningon t
 ## How to run
 
 ###  Install
-```
+```bash
 python3 setup.py install
 ```
 
 ### Unit-test project 
-```
+```bash
 python3 -m unittest discover -v ./tests/
-
+OR
+make test 
 ```
 
 ## Components

@@ -14,6 +14,9 @@
     ogni singolo altro parametro resta uguale durante la mutazione. Generi un GA con solo un campione con un unico parametro
     modificato alla volta e questa e' la popolazione iniziale.  
 
+[ ] sql to feather or parquet file format 
+        df.to_csv() => df.to_feather('test.feather')
+
 # DONE
 [x] crea il modulo trader.py e testa un trade effettivo su Binance.com ed aggiungi l'unittest
 

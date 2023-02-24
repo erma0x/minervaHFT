@@ -69,14 +69,18 @@ class TestFileManeagement(unittest.TestCase):
         self.assertNotIn(mutate_int(value=5,min=1,max=10),(1,2,8,9,10))
 
     def test_3_mutation_strategies(self):
-        mutate_strategy(STRATEGIES_FOLDER)
         children = get_population(STRATEGIES_FOLDER)
-        self.assertEqual(type(children),list)
+        new_children = mutate_strategy(children)
 
-        for i in children:             
+        self.assertEqual(type(new_children),list)
+        self.assertEqual(type(new_children[0]),dict)
+
+        for i,j in zip(children, new_children):             
             self.assertEqual(type(i),dict)
             self.assertEqual(len(i), 15) # strategy parameters + fitness
-
+            self.assertEqual(type(j),dict)
+            self.assertEqual(len(j), 15) # strategy parameters + fitness
+        self.assertNotEqual(children, new_children)
 
     def test_4_genetic_algorithm(self):
 
