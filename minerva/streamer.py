@@ -6,6 +6,7 @@ import os
 import json
 import websocket
 import argparse
+from pprint import pprint
 from datetime import datetime, timedelta
 import sqlite3
 import pandas as pd
@@ -13,6 +14,9 @@ import os
 import zmq
 import signal
 from binance import Client as binance_client
+import gc
+gc.enable()
+gc.set_threshold(1000,1000,1000)
 
 import os,sys
 PROJECT_PATH = os.getcwd()
@@ -34,7 +38,11 @@ def get_orderbook_database(database_path):
     return results
 
 
-def get_file_date(filepath):
+def get_orderbook_parquet(database_path):
+    results = pd.read_parquet(database_path, engine='pyarrow')
+    return results
+
+def get_file_date_sql(filepath):
     """get the filepath date
 
     Args:
@@ -43,20 +51,39 @@ def get_file_date(filepath):
     Returns:
         date (string): 2023-02-15_23
     """
+    #print(filepath)
     date_string = filepath.split("_")[1]  # year-month-day
+    hours_string = filepath.split("_")[2].split(".")[0][:2] # hours
+    dt = datetime.strptime(date_string + " " + hours_string, "%Y-%m-%d_%H")
+    return dt
+
+def get_file_date(filepath): # PARQUET
+    """get the filepath date
+
+    Args:
+        database filepath (string): example: orderbook_2023-02-15_23:56
+
+    Returns:
+        date (string): 2023-02-15_23
+    """
+    #print(filepath)
+    string_database_name = filepath.split("/")[-1]
+    date_string = string_database_name.split('_')[1]  # year-month-day
     hours_string = filepath.split("_")[2].split(".")[0][:2] # hours
     dt = datetime.strptime(date_string + " " + hours_string, "%Y-%m-%d %H")
     return dt
 
 
+def fake_streamer( socket ):
+    
+    list_of_database_files = get_filepaths_list( filepath_to_check = ORDERBOOK_BACKTESTING_FOLDER )
+    # sorted_filepaths = sorted(list_of_database_files, key=get_file_date)
+    sorted_filepaths = sorted(list_of_database_files)
 
-def fake_streamer(socket):
-    list_of_database_files = get_filepaths_list(filepath_to_check=ORDERBOOK_BACKTESTING_FOLDER)
-    sorted_filepaths = sorted(list_of_database_files, key=get_file_date)
-
-
-    for file_db in sorted_filepaths:
-        orderbook = get_orderbook_database(database_path = file_db)
+    for file_db in sorted_filepaths: ###############################################
+        gc.collect()
+        #orderbook = get_orderbook_database(database_path = file_db)
+        orderbook = get_orderbook_parquet(database_path = file_db)
         ask_generator = (item for item in orderbook.ask)
         bid_generator = (item for item in orderbook.bid)
         time_generator = (item for item in orderbook.timestamp)
@@ -73,24 +100,28 @@ def fake_streamer(socket):
                 print(f" data      {counter}")
                 print(f" minutes   {round(counter*0.4/60,2)}")
                 print(f" exec time {str(datetime.now()-START_TIME)[:-7]}")
-
+                
             try:
                 ask = next(ask_generator)
                 bid = next(bid_generator)
                 timestamp = next(time_generator)
+
+                #print(f'ask {ask}')
                 
                 datapoint_orderbook = str(timestamp)+'|'+str(ask)+'|'+str(bid)
                 #my_list_bytes = json.dumps(datapoint_orderbook)
+                #print(datapoint_orderbook)
                 socket.send(bytes(datapoint_orderbook.encode('utf-8')))
                 #producer.send_string(datapoint_orderbook)
 
             except StopIteration:
+                #socket.send_string('kill')
                 break
 
-            time.sleep(0.005)
-
-    socket.send(b'kill')
-    exit()
+            time.sleep(0.1)
+    
+    socket.send_string('kill')
+    #exit()
 
 def on_message(ws, message):
     # Funzione di callback per il ricevimento dei dati dal websocket
@@ -110,6 +141,8 @@ def on_message(ws, message):
         #producer.send_string(datapoint_orderbook)
 
     except StopIteration as stop_error:
+        #socket.send(bytes(datapoint_orderbook.encode('utf-8')))
+
         print(f'\n\t end data feed!')
     finally:
         time.sleep(0.4)
@@ -137,17 +170,16 @@ def get_live_orderbook(client,socket,ticker='BTCUSDT', limit_=200):
         time.sleep(0.4)
     except:
         time.sleep(1)
-    
+
 
 if __name__ == '__main__':
     
     if BACKTEST_MODE:
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        #signal.signal(signal.SIGINT, signal.SIG_DFL)
         context = zmq.Context()
-        socket = context.socket(zmq.PUB)
-        socket.bind('tcp://*:5555')
-        fake_streamer(socket=socket)
-
+        producer_socket = context.socket(zmq.PUB)
+        producer_socket.bind("tcp://127.0.0.1:5556")
+        fake_streamer(socket=producer_socket)
 
     if not BACKTEST_MODE:
         client = binance_client()
@@ -155,7 +187,7 @@ if __name__ == '__main__':
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         context = zmq.Context()
         socket = context.socket(zmq.PUB)
-        socket.bind('tcp://*:5555')
+        socket.bind('tcp://*:5557')
 
         print('live orderbook streamer')
         while True:

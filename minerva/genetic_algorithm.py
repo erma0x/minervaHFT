@@ -21,7 +21,7 @@ from colorama import Fore
 from colorama import Style
 
 from minerva.configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
-from minerva.configuration_genetic_algorithm import MUTATION_RATE, GENERATION_SIZE, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION
+from minerva.configuration_genetic_algorithm import MUTATION_RATE, GENERATIONS, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION
 from minerva.configuration_strategy import *
 from minerva.threading_utils import run_strategies
 from minerva.strategy_generator import strategy_generator
@@ -74,53 +74,50 @@ def mutate_float(value,min,max):
     return float(value)
 
 
-def mutate_strategy(population):
-    new_population = []
-    for i in population:
-        individual = {}
-        for key, value in i.items():
-            if random.random() < MUTATION_RATE:
-                if key == 'LIMIT_ORDER_BOOK':
-                    value = mutate_int(value=value, min=MIN_LIMIT_ORDERBOOK_DATA, max=MAX_LIMIT_ORDERBOOK_DATA)
+def mutate_strategy(individual):
+    mutated_individual = {}
+    for key, value in individual.items():
+        if random.random() < MUTATION_RATE:
+            if key == 'LIMIT_ORDER_BOOK':
+                value = mutate_int(value=value, min=MIN_LIMIT_ORDERBOOK_DATA, max=MAX_LIMIT_ORDERBOOK_DATA)
 
-                if key == 'RELATIVE_THRESHOLD_DIV':
-                    value = mutate_int(value=value, min=MIN_RELATIVE_THRESHOLD_DIV, max=MAX_RELATIVE_THRESHOLD_DIV)
+            if key == 'RELATIVE_THRESHOLD_DIV':
+                value = mutate_int(value=value, min=MIN_RELATIVE_THRESHOLD_DIV, max=MAX_RELATIVE_THRESHOLD_DIV)
 
-                if key == 'MAX_SECONDS_TRADE_OPEN':
-                    value = mutate_int(value=value, min=MIN_MAX_SECONDS_TRADE_OPEN, max=MAX_MAX_SECONDS_TRADE_OPEN)
+            if key == 'MAX_SECONDS_TRADE_OPEN':
+                value = mutate_int(value=value, min=MIN_MAX_SECONDS_TRADE_OPEN, max=MAX_MAX_SECONDS_TRADE_OPEN)
 
-                if key == 'PEAK_DISTANCE_DIVISOR':
-                    value = mutate_int(value=value, min=MIN_PEAK_DISTANCE_DIVISOR, max=MAX_PEAK_DISTANCE_DIVISOR)
+            if key == 'PEAK_DISTANCE_DIVISOR':
+                value = mutate_int(value=value, min=MIN_PEAK_DISTANCE_DIVISOR, max=MAX_PEAK_DISTANCE_DIVISOR)
 
-                if key == 'THRESHOLD_SHORT':
-                    value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
+            if key == 'THRESHOLD_SHORT':
+                value = mutate_float(value=value, min=MIN_THRESHOLD_SHORT, max=MAX_THRESHOLD_SHORT)
 
-                if key == 'THRESHOLD_LONG':
-                    value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
+            if key == 'THRESHOLD_LONG':
+                value = mutate_float(value=value, min=MIN_THRESHOLD_LONG, max=MAX_THRESHOLD_LONG)
 
-                if key == 'SL_PRICE_BUFFER':
-                    value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)
+            if key == 'SL_PRICE_BUFFER':
+                value = mutate_float(value=value, min=MIN_SL_PRICE_BUFFER, max=MAX_SL_PRICE_BUFFER)
 
-                if key == 'TP_PRICE_BUFFER':
-                    value = mutate_float(value=value, min=MIN_TP_PRICE_BUFFER, max=MAX_TP_PRICE_BUFFER)
+            if key == 'TP_PRICE_BUFFER':
+                value = mutate_float(value=value, min=MIN_TP_PRICE_BUFFER, max=MAX_TP_PRICE_BUFFER)
 
-                if key == 'PERCENTAGE_PER_TRADE':
-                    value = mutate_float(value=value, min=MIN_PERCENTAGE_PER_TRADE, max=MIN_PERCENTAGE_PER_TRADE)
+            if key == 'PERCENTAGE_PER_TRADE':
+                value = mutate_float(value=value, min=MIN_PERCENTAGE_PER_TRADE, max=MIN_PERCENTAGE_PER_TRADE)
 
-                if key == 'K1':
-                    value = mutate_float(value=value, min=MIN_K, max=MAX_K)
+            if key == 'K1':
+                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-                if key == 'K2':
-                    value = mutate_float(value=value, min=MIN_K, max=MAX_K)
+            if key == 'K2':
+                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-                if key == 'K3':
-                    value = mutate_float(value=value, min=MIN_K, max=MAX_K)
+            if key == 'K3':
+                value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
-                if key == 'W_I':
-                    value = mutate_float(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
-            individual[key] = value
-        new_population.append(individual)
-    return new_population
+            if key == 'W_I':
+                value = mutate_float(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
+        mutated_individual[key] = value
+    return mutated_individual
 
 
 def get_population(filepath_strategies):
@@ -206,7 +203,7 @@ def genetic_algorithm(population, fitness_function, generation_number = 0, pop_s
 
 def selection(population, fitness_function):
     sorted_population = sorted(population, key=fitness_function, reverse=True)
-    return sorted_population[:int(math.floor(len(population) // 3)) ]
+    return sorted_population[:int(math.floor(len(population) // 2)) ]
 
 def fitness_function(individual):
     return individual['fitness']
@@ -250,7 +247,7 @@ if __name__ == '__main__':
     os.system('clear')
     
     print(f'\n\t 🧬 Minerva genetic algorithm \n')
-    print(f'{Fore.LIGHTGREEN_EX} generation size {Style.RESET_ALL} {GENERATION_SIZE} ')
+    print(f'{Fore.LIGHTGREEN_EX} generation size {Style.RESET_ALL} {GENERATIONS} ')
     print(f'{Fore.LIGHTGREEN_EX} population size {Style.RESET_ALL} {POPULATION_SIZE} ')
     print(f'{Fore.LIGHTGREEN_EX} mutation rate   {Style.RESET_ALL} {round(MUTATION_RATE*100,2)} % \n ')
 
@@ -281,10 +278,10 @@ if __name__ == '__main__':
 
     POPULATION = get_population( filepath_strategies = STRATEGIES_FOLDER )
 
-    for generation_number in range(1,GENERATION_SIZE+1):
+    for generation_number in range(1,GENERATIONS+1):
 
         run_strategies() 
-
+        
         POPULATION = genetic_algorithm( population = POPULATION , fitness_function = fitness_function, generation_number = generation_number, pop_size = POPULATION_SIZE)
         
     exit()

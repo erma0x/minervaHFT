@@ -17,6 +17,9 @@ import signal
 import zmq
 from collections import deque
 from copy import deepcopy
+import gc
+gc.enable()
+gc.set_threshold(1000,1000,1000)
 
 import os,sys
 PROJECT_PATH = os.getcwd()
@@ -25,44 +28,34 @@ sys.path.append(PROJECT_PATH.replace('minerva/',''))
 from minerva.configuration_backtest import *
 
 
-def save_performance(path_strategy):
-    # salva la performance in un file a parte: s0.py -> salva su p0.py la performance
-    path_strategy = path_strategy.replace('./strategies/','').replace(ROOT_PATH*2,ROOT_PATH)
-    performance = 0
+# def save_performance(path_strategy):
+#     # salva la performance in un file a parte: s0.py -> salva su p0.py la performance
+#     with open(path_strategy, "r") as file:
+#         contents = file.readlines()
+#         for i in range(len(contents)):
+#             if 'fitness' in contents[i]:
+#                 fitness_raw = contents[i]
+#                 if '[' in fitness_raw:
+#                     fitness_raw = fitness_raw.replace(']', '').replace('[', '')
 
-    with open(path_strategy, "r") as file:
-        contents = file.readlines()
-        for i in range(len(contents)):
-            if 'fitness' in contents[i]:
-                fitness_raw = contents[i]
-                if '[' in fitness_raw:
-                    fitness_raw = fitness_raw.replace(']', '').replace('[', '')
+#                 performance = fitness_raw.split('=')[1].replace(' ','')
 
-                performance = fitness_raw.split('=')[1].replace(' ','')
-
-    path_performance = path_strategy.replace(ROOT_PATH*2,ROOT_PATH).replace('strategies/s','strategies/p')
-    with open(path_performance, "w+") as file:
-        file.write(performance)
+#     path_performance = path_strategy.replace(ROOT_PATH*2,ROOT_PATH).replace('strategies/s','strategies/p')
+#     with open(path_performance, "w+") as file:
+#         file.write(performance)
 
 # update single performace value in python file
-def update_performance(performance,performance_name,path):
-    path = path.replace('./strategies/','')
-    with open(path.replace(ROOT_PATH*2,ROOT_PATH), "r") as file:
+def update_performance(performance, performance_name, path):
+    with open(path, "r") as file:
         contents = file.readlines()
         for i in range(len(contents)):
             if performance_name in contents[i]:
                 contents[i] = f"{performance_name} = {performance}"
-
-    with open(path.replace(ROOT_PATH*2,ROOT_PATH), "w") as file:
+    with open(path, "w+") as file:
         file.writelines(contents)
-    
-    EXEC_IMPORT_STRING=f"""from {path.replace(ROOT_PATH,'').replace('/','.').replace('.py','').replace('.st','st')} import *"""
-    #print("EXECUTION STRING: " + EXEC_IMPORT_STRING)
-    exec(EXEC_IMPORT_STRING)
 
-
-
-    
+    #EXEC_IMPORT_STRING=f"""from {path.replace(ROOT_PATH,'').replace('/','.').replace('.py','').replace('..','')} import *"""
+    #exec(EXEC_IMPORT_STRING)
 
 def format_binance_data(data):
     ds = data
@@ -130,11 +123,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     STRATEGY_PATH = args.strategy_path
     #STRATEGY_PATH = STRATEGY_PATH.replace('./strategies/','strategies.') # IF ORACLE
-    EXEC_IMPORT_MODULE = STRATEGY_PATH.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('.strategies','strategies').replace('.strategies.strategies','strategies').replace('strategies.strategies.','strategies.')
+    EXEC_IMPORT_MODULE = STRATEGY_PATH.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('..','')
 
-    EXEC_IMPORT_STRING=f"""from minerva{EXEC_IMPORT_MODULE} import *"""
-    #print(EXEC_IMPORT_STRING)
-    
+    EXEC_IMPORT_STRING=f"""from {EXEC_IMPORT_MODULE} import *"""
+    print(EXEC_IMPORT_STRING)
     try:
         exec(EXEC_IMPORT_STRING)
     except SyntaxError:
@@ -156,14 +148,15 @@ if __name__ == '__main__':
     
     # socket zmq client interface
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    context = zmq.Context()
-    socket = context.socket(zmq.SUB)
-    socket.connect('tcp://localhost:5555')
-    socket.setsockopt(zmq.SUBSCRIBE, b'')
     
+    context = zmq.Context()
+    consumer_socket = context.socket(zmq.SUB)
+    consumer_socket.connect("tcp://127.0.0.1:5556")
+    consumer_socket.setsockopt_string(zmq.SUBSCRIBE, "")
+
     # container orderbook datastructures
-    my_buffer_ask = deque( maxlen = 50 )
-    my_buffer_bid = deque( maxlen = 50 )
+    my_buffer_ask = deque( maxlen = 10 )
+    my_buffer_bid = deque( maxlen = 10 )
 
     TIME_COUNTER = 0
     counter_messages = 0
@@ -174,13 +167,10 @@ if __name__ == '__main__':
         ###################         NEW DATA                ###################
         #######################################################################
         
-        message = socket.recv()
+        message = consumer_socket.recv()
+        
         counter_messages+=1
-
-        if message in (str([b'kill']),b'kill'):
-            exit()
-
-        #print(message)
+        
         buffer_object = message.decode().split('|')
         
         LOAD_DATA_SUCCESS = False
@@ -201,15 +191,15 @@ if __name__ == '__main__':
             my_buffer_ask.append(ask_array) 
             my_buffer_bid.append(bid_array)
         
-            asks_prices = deepcopy(np.hsplit(np.array(my_buffer_ask[-1]),2)[1].reshape(-1))
-            asks_volumes =  deepcopy(np.hsplit(np.array(my_buffer_ask[-1]),2)[0].reshape(-1))
-            bids_prices =  deepcopy(np.hsplit(np.array(my_buffer_bid[-1]),2)[1].reshape(-1))
-            bids_volumes =  deepcopy(np.hsplit(np.array(my_buffer_bid[-1]),2)[0].reshape(-1))
-            
-            max_ask_absolute_volume = deepcopy(max(asks_volumes))
-            max_bid_absolute_volume = deepcopy(max(bids_volumes))
-            min_ask_price = deepcopy(min(asks_prices))
-            max_bid_price = deepcopy(max(bids_prices))
+            asks_prices = np.hsplit(np.array(my_buffer_ask[-1]),2)[1].reshape(-1)
+            asks_volumes =  np.hsplit(np.array(my_buffer_ask[-1]),2)[0].reshape(-1)
+            bids_prices =  np.hsplit(np.array(my_buffer_bid[-1]),2)[1].reshape(-1)
+            bids_volumes =  np.hsplit(np.array(my_buffer_bid[-1]),2)[0].reshape(-1)        
+
+            max_ask_absolute_volume = max(asks_volumes)
+            max_bid_absolute_volume = max(bids_volumes)
+            min_ask_price = min(asks_prices)
+            max_bid_price = max(bids_prices)
 
             MID_PRICE = (min_ask_price + max_bid_price) / 2
 
@@ -249,14 +239,14 @@ if __name__ == '__main__':
             # prendo Ask e Bid con un filtro minimo di volumi THRESHOLD_BTCUSDT
 
             # take the first volume peak in the ask and in the bid arrays
-            x_all = deepcopy(np.where(asks_prices == min_ask_price)[0]) # find the index of this in the list
-            y_all = deepcopy(np.where(bids_prices == max_bid_price)[0])
+            x_all = np.where(asks_prices == min_ask_price)[0] # find the index of this in the list
+            y_all = np.where(bids_prices == max_bid_price)[0]
 
-            if x_all.any():
-                x = deepcopy(np.where(asks_prices == min_ask_price)[0][0]) # find the index of this in the list
+            #if x_all.any():
+            #    x = deepcopy(np.where(asks_prices == min_ask_price)[0][0]) # find the index of this in the list
             
-            if y_all.any():
-                y = deepcopy(np.where(bids_prices == max_bid_price)[0][0])
+            #if y_all.any():
+            #    y = deepcopy(np.where(bids_prices == max_bid_price)[0][0])
 
             BEST_ASK_OFFER_PRICE = asks_prices[x_all] # lowest ask
             BEST_BID_OFFER_PRICE = bids_prices[y_all] # highest bid
@@ -402,12 +392,12 @@ if __name__ == '__main__':
                         EQUITY += GAIN
 
                         GAIN_PERCENTAGE_24H = ((EQUITY-INITIAL_CAPITAL)/INITIAL_CAPITAL * 100 ) / DAYS_COUNTER
-                        
-                        PERFORMANCE = GAIN_PERCENTAGE_24H
+                                                
+                        if type(GAIN_PERCENTAGE_24H) != float :
+                            GAIN_PERCENTAGE_24H = float(GAIN_PERCENTAGE_24H[0])
+                        update_performance( performance = GAIN_PERCENTAGE_24H , performance_name = "fitness" , path = STRATEGY_PATH )
 
-                        update_performance(PERFORMANCE,"fitness",ROOT_PATH+STRATEGY_PATH)
-
-                        CLOSED_TRADE_ID.append(ID_TRADE_)
+                        CLOSED_TRADE_ID.append( ID_TRADE_ )
 
                 # DELETE ALL THE CLOSED TRADE FROM THE TRADE ORDERBOOK
                 for id_ in CLOSED_TRADE_ID:
@@ -476,33 +466,30 @@ if __name__ == '__main__':
 
             if PRINT_ANY_DATA:
                 os.system('clear')
-                print(f'minerva {STRATEGY_PATH} [ONLINE]')
-                print(f' #Trades        {TRADE_ID}')
-                print(f' gain24h %      {GAIN_PERCENTAGE_24H}')
-                print(f' Actual equity  {EQUITY}')
-                print(f' Initial equity {INITIAL_CAPITAL}')
-                print(f'market          {MARKET}')
+                print(f' python3 minerva/oracle.py -s {STRATEGY_PATH}')
+                print(f' #Trades                       \t{TRADE_ID}')
+                print(f' fitness: theoretical gain24h %\t{GAIN_PERCENTAGE_24H}')
+                
+                # if not BACKTEST_MODE:
+                # EMPIRICAL_GAIN_PERCENTAGE_24H = get_gain_24h_percentage_from_account(initial_capital,ticker):
+                # print(f' fitness: empirical gain24h %      {EMPIRICAL_GAIN_PERCENTAGE_24H}')
+
+                print(f' Actual equity      \t{EQUITY}')
+                print(f' Initial equity     \t{INITIAL_CAPITAL}')
+                print(f'market              \t{MARKET}')
                 
                 if BACKTEST_MODE:
-                    print(f'execution time in days:    {DAYS_COUNTER}')
+                    print(f'backtested days:\t{DAYS_COUNTER}')
                     print(f'data {counter_messages}')
-                else:
-                    MINUTES = EXECUTION_TIME.seconds/60
-                    HOURS = MINUTES/60
-                    DAYS = round(HOURS/24,5)
-                    print(f'execution time in seconds: {EXECUTION_TIME.seconds}')
-                    print(f'execution time in days:    {DAYS}')
 
                 if PRINT_BASIC_DATA:
-                    if DAYS: print(f'gain 1day % {round(((EQUITY-INITIAL_CAPITAL)/INITIAL_CAPITAL*100)/DAYS,5) }')
-
+                    print(f'execution time in seconds: {EXECUTION_TIME.seconds}')
                     print(f'MID_PRICE       {MID_PRICE}')
                     print(f'min_ask_price   {min_ask_price}')
                     print(f'max_bid_price   {max_bid_price}')
                     print(f'OPERATION_PARAMETER {OPERATION_PARAMETER}')
                     print(f'ASK peaks       {peaks_asks}')
                     print(f'BID peaks       {peaks_bids}')
-
                     print(f'\nTRADE ORDERBOOK')
                     pprint(TRADE_ORDERBOOK)
 

@@ -6,8 +6,12 @@ from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
 
-from genetic_algorithm import get_best, get_population, fitness_function, save_best, get_list_filepath_strategies
-from configuration_backtest import STRATEGY_FOLDER,ROOT_PATH
+import os,sys
+PROJECT_PATH = os.getcwd()
+sys.path.append(PROJECT_PATH.replace('minerva/',''))
+
+from minerva.genetic_algorithm import get_best, get_population, fitness_function, get_filepaths_list
+from minerva.configuration_backtest import STRATEGY_FOLDER
 
 
 def monitor_performances(directory_path):
@@ -26,7 +30,7 @@ def monitor_performances(directory_path):
     Args:
         directory_path (string): filepath strategies directory
     """
-    list_of_files = get_list_filepath_strategies(directory_path)
+    list_of_files = get_filepaths_list(directory_path)
     results = []
     BEST = {}
 
@@ -44,15 +48,15 @@ def monitor_performances(directory_path):
     results_sorted = sorted(results, key=lambda x: x[1], reverse=True)
 
     # GET BEST
-    population = get_population( filepath_strategies = STRATEGY_FOLDER )
-    if population != {}:
-        BEST = get_best( population = population, fitness_function=fitness_function)        
+    POPULATION = get_population( filepath_strategies = STRATEGY_FOLDER )
+    print(POPULATION)
+    if POPULATION != []:
+        BEST = get_best( population = POPULATION, fitness_function = fitness_function)        
         
         TMP = BEST.copy() 
         TMP['fitness'] = 0
 
         if TMP not in ALL_BEST_STRATEGIES:
-            save_best(population, fitness_function = fitness_function)
             ALL_BEST_STRATEGIES.append(TMP)
 
     # PRINT
