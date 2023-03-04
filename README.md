@@ -19,6 +19,15 @@ OR
 make test 
 ```
 
+### Check evolution processes 
+```bash
+ps -aux | grep python3
+    or
+htop
+    or
+top
+```
+
 ## Components
 - streamer :         backtest/live, save in SQL .db
 - oracle :           find LONG/SHORT, TP/SL/ENTRY, RISK-MANAGER, TRADER

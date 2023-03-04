@@ -26,41 +26,28 @@ PROJECT_PATH = os.getcwd()
 sys.path.append(PROJECT_PATH.replace('minerva/',''))
 
 from minerva.configuration_backtest import *
+import json,pickle
+
+def store_perfomances(data,filename):
+    filename = filename.replace('.py','.pickle').replace(' ','').replace("'\n",'')
+    dbfile = open(filename, 'wb')
+    pickle.dump(data, dbfile)                     
+    dbfile.close()
 
 
-# def save_performance(path_strategy):
-#     # salva la performance in un file a parte: s0.py -> salva su p0.py la performance
-#     with open(path_strategy, "r") as file:
-#         contents = file.readlines()
-#         for i in range(len(contents)):
-#             if 'fitness' in contents[i]:
-#                 fitness_raw = contents[i]
-#                 if '[' in fitness_raw:
-#                     fitness_raw = fitness_raw.replace(']', '').replace('[', '')
+# def update_performance(performance, performance_name, path):
+#     'update single performace value in python file'
+#     with open(path, 'r') as f:
+#         contents = f.readlines()
 
-#                 performance = fitness_raw.split('=')[1].replace(' ','')
-
-#     path_performance = path_strategy.replace(ROOT_PATH*2,ROOT_PATH).replace('strategies/s','strategies/p')
-#     with open(path_performance, "w+") as file:
-#         file.write(performance)
-
-# update single performace value in python file
-def update_performance(performance, performance_name, path):
-    with open(path, "r") as file:
-        contents = file.readlines()
-        for i in range(len(contents)):
-            if performance_name in contents[i]:
-                contents[i] = f"{performance_name} = {performance}"
-    with open(path, "w+") as file:
-        file.writelines(contents)
-
-    #EXEC_IMPORT_STRING=f"""from {path.replace(ROOT_PATH,'').replace('/','.').replace('.py','').replace('..','')} import *"""
-    #exec(EXEC_IMPORT_STRING)
+#     with open(path,"w",encoding='utf-8') as file:
+#         for i in range(0,len(contents),-1):
+#             if performance_name in contents[i]:
+#                 contents[i] = f"{performance_name} = {performance}"
 
 def format_binance_data(data):
     ds = data
-    cols = ['asks','bids']
-    for col in cols:
+    for col in ['asks', 'bids']:
         for i in range(len(ds[col])):
             ds[col][i][0] = float(data[col][i][0])
             ds[col][i][1] = float(data[col][i][1])
@@ -126,14 +113,16 @@ if __name__ == '__main__':
     EXEC_IMPORT_MODULE = STRATEGY_PATH.replace(ROOT_PATH,'').replace('.py','').replace('/','.').replace('..','')
 
     EXEC_IMPORT_STRING=f"""from {EXEC_IMPORT_MODULE} import *"""
-    print(EXEC_IMPORT_STRING)
-    try:
-        exec(EXEC_IMPORT_STRING)
-    except SyntaxError:
-        print(f"SyntaxError string ERROR => {EXEC_IMPORT_STRING}")    
+    
+    #try:
+    exec(EXEC_IMPORT_STRING)
 
-    except ImportError:
-        print(f"ImportError string ERROR => {EXEC_IMPORT_STRING}")    
+    
+    #except SyntaxError:
+    #    print(f"SyntaxError string ERROR => {EXEC_IMPORT_STRING}")    
+
+    #except ImportError:
+    #    print(f"ImportError string ERROR => {EXEC_IMPORT_STRING}")    
 
 
 
@@ -147,7 +136,7 @@ if __name__ == '__main__':
         plt.gca()
     
     # socket zmq client interface
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    #signal.signal(signal.SIGINT, signal.SIG_DFL)
     
     context = zmq.Context()
     consumer_socket = context.socket(zmq.SUB)
@@ -160,7 +149,7 @@ if __name__ == '__main__':
 
     TIME_COUNTER = 0
     counter_messages = 0
-    print(f"🔹oracle {STRATEGY_PATH.replace(str(ROOT_PATH+'/strategies/s'),'').replace('.py','')}")
+    print(f"minerva/oracle.py {STRATEGY_PATH} ")
 
     while True:
         #######################################################################
@@ -170,6 +159,8 @@ if __name__ == '__main__':
         message = consumer_socket.recv()
         
         counter_messages+=1
+        # FITNESS_DATA = {'fitness':9,'#trades':ID_TRADE_,'gain_24_h':GAIN_PERCENTAGE_24H,'msg':counter_messages}
+        # store_perfomances(data = FITNESS_DATA, filename = STRATEGY_PATH)
         
         buffer_object = message.decode().split('|')
         
@@ -395,7 +386,11 @@ if __name__ == '__main__':
                                                 
                         if type(GAIN_PERCENTAGE_24H) != float :
                             GAIN_PERCENTAGE_24H = float(GAIN_PERCENTAGE_24H[0])
-                        update_performance( performance = GAIN_PERCENTAGE_24H , performance_name = "fitness" , path = STRATEGY_PATH )
+                        
+                        FITNESS = (EQUITY-INITIAL_CAPITAL)[0]
+                        FITNESS_DATA = {'fitness':FITNESS,'#trades':ID_TRADE_,'gain_24_h':GAIN_PERCENTAGE_24H,'msg':counter_messages}
+                        store_perfomances(data = FITNESS_DATA, filename = STRATEGY_PATH)
+                        #update_performance( performance = GAIN_PERCENTAGE_24H , performance_name = "fitness" , path = STRATEGY_PATH )
 
                         CLOSED_TRADE_ID.append( ID_TRADE_ )
 
@@ -411,7 +406,6 @@ if __name__ == '__main__':
                 TRADING_OPERATION_['running_time'] =  datetime.now() - START_TIME                     
                 TRADE_ORDERBOOK[ID_TRADE_] = TRADING_OPERATION_ 
 
-            
             endtime = datetime.now()
             EXECUTION_TIME = endtime - starttime
             #######################################################################

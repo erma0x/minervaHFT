@@ -26,7 +26,7 @@ from minerva.configuration_backtest import *
 from minerva.configuration_strategy import MARKET
 from minerva.oracle import format_binance_data
 from minerva.database_utils import orderbook_storage
-from minerva.genetic_algorithm import get_filepaths_list
+from research.genetic_algorithm.test_genetic_algorithm import get_filepaths_list
 from minerva.configuration_backtest import ORDERBOOK_BACKTESTING_FOLDER
 
 
@@ -118,7 +118,7 @@ def fake_streamer( socket ):
                 #socket.send_string('kill')
                 break
 
-            time.sleep(0.1)
+            time.sleep(0.08)
     
     socket.send_string('kill')
     #exit()

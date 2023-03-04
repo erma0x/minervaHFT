@@ -1,0 +1,4 @@
+from genetic_algorithm import kill_duplicate_oracle_processes
+
+kill_duplicate_oracle_processes()
+

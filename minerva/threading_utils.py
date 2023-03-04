@@ -27,7 +27,7 @@ def find_files(path):
     for file in files:
         if '__' not in str(file): 
             file_list.append(os.path.join(file))
-    return file_list
+    return tuple(file_list)
 
 def run_command(cmd):
     process_id = subprocess.Popen(cmd, shell=True)

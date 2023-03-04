@@ -8,12 +8,12 @@ sys.path.append(PROJECT_PATH.replace('tests/',''))
 from copy import deepcopy 
 #from configuration_backtest import *
 from minerva.configuration_backtest import *
-from minerva.genetic_algorithm import get_filepaths_list, remove_folder, create_folder
-from minerva.genetic_algorithm import get_population, save_population
-from minerva.genetic_algorithm import mutate_float, mutate_int, mutate_strategy
-from minerva.genetic_algorithm import crossover, selection, fitness_function
+from research.genetic_algorithm.test_genetic_algorithm import get_filepaths_list, remove_folder, create_folder
+from research.genetic_algorithm.test_genetic_algorithm import get_population, save_population
+from research.genetic_algorithm.test_genetic_algorithm import mutate_float, mutate_int, mutate_strategy
+from research.genetic_algorithm.test_genetic_algorithm import crossover, selection, fitness_function
 from minerva.strategy_generator import strategy_generator
-from minerva.genetic_algorithm import get_best_initial_population, get_best
+from research.genetic_algorithm.test_genetic_algorithm import get_best_initial_population, get_best
 
 
 class TestFileManeagement(unittest.TestCase):

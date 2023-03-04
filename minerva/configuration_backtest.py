@@ -19,11 +19,13 @@ while os.path.exists(STRATEGIES_FOLDER):
 # STREAMER
 BACKTEST_MODE = True
 SAVE_LIVE_DATA_IN_SQL = False
-PRINT_TIMESTAMP = False
 
+PRINT_TIMESTAMP = False
 # ORACLE Trading algorithm 
 PRINT_ANY_DATA = False
-PRINT_BASIC_DATA = False 
+PRINT_BASIC_DATA = False
+
+# if debug = true
 PRINT_ALGORITHM = False
 PLOT_DATA = False
 
@@ -33,16 +35,13 @@ SQL_DB_TIME = 13 # 10 days # 13 hours # 16 minutes
 ORDERBOOK_DATABASE = f"orderbook_{str(datetime.now())[:SQL_DB_TIME].replace(' ','_')}.db" # hours
 STRATEGY_FOLDER = ROOT_PATH+'/strategies/'
 # BACKTESTING MODE DATABASE PATH
-#BACKTEST_ORDERBOOK_DATABASE = ROOT_PATH+f'/databases/orderbook.db'
-ORDERBOOK_BACKTESTING_FOLDER = ROOT_PATH+f'/databases/big'
-ORDERBOOK_BACKTESTING_FOLDER = ROOT_PATH+f'/databases/backtesting'
-ORDERBOOK_BACKTESTING_FOLDER = ROOT_PATH+f'/databases/output_parquet'
 ORDERBOOK_BACKTESTING_FOLDER = ROOT_PATH+f'/databases/small_parquet'
+ORDERBOOK_BACKTESTING_FOLDER = ROOT_PATH+f'/databases/output_parquet'
 
 counter_live_datapoints = 0
 
 ############################################################################
-INITIAL_CAPITAL =  10_000
+INITIAL_CAPITAL =  5000
 EQUITY = INITIAL_CAPITAL
 REQUEST_TIME_INTERVAL = 0.4
 LEVERAGE = 1
@@ -71,7 +70,7 @@ TRADING_OPERATION = {"side": "",  # string LONG/SHORT
                      "symbol": "",  # string BTCUSDT/ETH-PERP/...
                      "take_profits": [],  # floats "30", "31"
                      "entry_prices": [],  # floats "29", "28"
-                     "stop_losses": [],  # floats "23", "24"
+                     "stop_losses": [],  # floats2 "23", "24"
                      "laverage": ""}  # int "2"/"5"/"10"/"20"/"50"/"100"
 ############################################################################
 # EXAMPLE_TRADING_OPERATION = {"side": "LONG",

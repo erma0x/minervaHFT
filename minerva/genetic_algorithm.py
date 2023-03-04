@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
-
-# SUPER IMPORTANT
-# da mettere in ogni file coinvolto
-# lancia python3 minerva/genetic_algorithm.py
-# oppure python3 minerva/streamer.py --live True
-#      + python3 minerva/oracle --strategy ./strategies/balenottera_azzurra.py
+import subprocess
+import time
+import zmq
+import signal
+from progress.bar import FillingSquaresBar, FillingCirclesBar, PixelBar,ChargingBar
 
 import os,sys
 PROJECT_PATH = os.getcwd()
 sys.path.append(PROJECT_PATH.replace('minerva/',''))
+import pickle, multiprocessing, gc
 
 import shutil
 import random
@@ -20,12 +19,20 @@ from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
 
+
 from minerva.configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
-from minerva.configuration_genetic_algorithm import MUTATION_RATE, GENERATIONS, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION
+from minerva.configuration_genetic_algorithm import MUTATION_RATE, GENERATIONS, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION, SELECTION_RATE
 from minerva.configuration_strategy import *
-from minerva.threading_utils import run_strategies
+from minerva.threading_utils import *
 from minerva.strategy_generator import strategy_generator
 
+  
+
+def load_pickle(filename):
+    with open(filename, 'rb') as handle:
+        unserialized_data = pickle.load(handle)
+        return unserialized_data
+    
 def get_filepaths_list(filepath_to_check: str):
     """Returns a list of strategies fielpaths for a given filepath_strategies"""
     try:
@@ -115,7 +122,7 @@ def mutate_strategy(individual):
                 value = mutate_float(value=value, min=MIN_K, max=MAX_K)
 
             if key == 'W_I':
-                value = mutate_float(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
+                value = mutate_int(value=value, min=MIN_WINDOW_INCREMENT, max=MAX_WINDOW_INCREMENT)
         mutated_individual[key] = value
     return mutated_individual
 
@@ -135,23 +142,24 @@ def get_population(filepath_strategies):
     list_of_files = get_filepaths_list(filepath_to_check = filepath_strategies )
     population = []
     for filepath_strategy in list_of_files:
-        with open(filepath_strategy, 'r') as f:
-            data = f.readlines()
-            individual = {}
-            for i in range(len(data)):
-                if '=' in data[i]:
-                    data[i] = data[i].replace('\n', '').replace(' ', '')
-                    key = data[i].split('=')[0]
-                    value = data[i].split('=')[1]
+        if '.py' in filepath_strategy:
+            with open(filepath_strategy, 'r') as f:
+                data = f.readlines()
+                individual = {}
+                for i in range(len(data)):
+                    if '=' in data[i]:
+                        data[i] = data[i].replace('\n', '').replace(' ', '')
+                        key = data[i].split('=')[0]
+                        value = data[i].split('=')[1]
 
-                    if key != 'MARKET':
-                        if '.' not in value: # int
-                            individual[key] = int(value)
-                        else: # float
-                            individual[key] = float(value)
-                    else:
-                        individual[key] = value.replace("'",'')
-            population.append(individual)
+                        if key != 'MARKET':
+                            if '.' not in value: # int
+                                individual[key] = int(value)
+                            else: # float
+                                individual[key] = float(value)
+                        else:
+                            individual[key] = value.replace("'",'')
+                population.append(individual)
 
     return population
 
@@ -180,30 +188,9 @@ def crossover(parent1, parent2):
     return child
 
 
-
-def genetic_algorithm(population, fitness_function, generation_number = 0, pop_size = 2):
-
-    parents = selection(population, fitness_function)
-    
-    children = []
-    if pop_size > len(children):
-        while pop_size > len(children):
-            parent1 = random.choice(parents)
-            parent2 = random.choice(parents) 
-            child = crossover(parent1, parent2)
-
-            if child not in children:
-                children.append(child)
-    
-    mutated_children = mutate_strategy(children) # generation + 1
-    NEW_GENERATION_FOLDER = STRATEGIES_FOLDER.replace(f'generation_{generation_number}',f'generation_{generation_number+1}')
-    save_population(population = mutated_children, dir_name = NEW_GENERATION_FOLDER )
-    children = get_population(filepath_strategies = NEW_GENERATION_FOLDER )
-    return children
-
 def selection(population, fitness_function):
     sorted_population = sorted(population, key=fitness_function, reverse=True)
-    return sorted_population[:int(math.floor(len(population) // 2)) ]
+    return sorted_population[:int(math.floor(len(population) // SELECTION_RATE)) ]
 
 def fitness_function(individual):
     return individual['fitness']
@@ -242,17 +229,20 @@ def get_best_initial_population(path, fitness_function, pop_size = 5 ):
     
     return INITIAL_POPULATION
 
-if __name__ == '__main__':
+def start_oracle(file):
+    return subprocess.Popen(['python3', 'minerva/oracle.py',f'-s {file}'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    #return subprocess.Popen(['python3', 'minerva/oracle.py',f'-s {file}'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE) 
 
-    os.system('clear')
-    
-    print(f'\n\t 🧬 Minerva genetic algorithm \n')
-    print(f'{Fore.LIGHTGREEN_EX} generation size {Style.RESET_ALL} {GENERATIONS} ')
-    print(f'{Fore.LIGHTGREEN_EX} population size {Style.RESET_ALL} {POPULATION_SIZE} ')
-    print(f'{Fore.LIGHTGREEN_EX} mutation rate   {Style.RESET_ALL} {round(MUTATION_RATE*100,2)} % \n ')
+def start_streamer():
+    return subprocess.Popen(['python3', f'minerva/streamer.py'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
-    # runs/expmeriment_1/generation_0/s0.py => runs/expmeriment_2/generation_0/s0.py
+def kill_duplicate_oracle_processes():
+    subprocess.run(['bash', '-c', 'bash minerva/kill_all_duplicates.sh'])
+
+
+def genetic_algorithm(): 
+
     experiment_number = 0
     experiment_directory = ROOT_PATH+f'/runs/experiment_{experiment_number}/'
     while os.path.exists(experiment_directory):
@@ -277,11 +267,92 @@ if __name__ == '__main__':
             strategy_generator(STRATEGIES_FOLDER+'/')
 
     POPULATION = get_population( filepath_strategies = STRATEGIES_FOLDER )
+    NEW_GENERATION_FOLDER = STRATEGIES_FOLDER
+    for generation_number in range(0,GENERATIONS):
 
-    for generation_number in range(1,GENERATIONS+1):
+        files = find_files(NEW_GENERATION_FOLDER)
 
-        run_strategies() 
+        processes = []
+        for file in files:
+            oracle_file = file.split('minervaHFT/')[1]
+            p = subprocess.Popen(['python3', 'minerva/oracle.py',f'-s ./{oracle_file}'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            #p = multiprocessing.Process(target=start_oracle, args=(oracle_file,))#,daemon=True)
+            #p.start()
+            processes.append(p)
+            print("start oracle", p.pid,file)
+            time.sleep(0.2)
+
+
+        #signal.signal(signal.SIGINT, signal.SIG_DFL)
+        context = zmq.Context()
+        consumer_socket = context.socket(zmq.SUB)
+        consumer_socket.connect("tcp://127.0.0.1:5556")
+        consumer_socket.setsockopt_string(zmq.SUBSCRIBE, "")
         
-        POPULATION = genetic_algorithm( population = POPULATION , fitness_function = fitness_function, generation_number = generation_number, pop_size = POPULATION_SIZE)
+        print('lunching zmq consumer socket for killing the processes')
         
-    exit()
+        counter = 0
+        gc.enable()
+        gc.set_threshold( 2000 , 1000 , 1000)
+        time.sleep(2)
+
+        bar = ChargingBar(f'\n\t generation {generation_number} ', max = 4 * 5000)    
+
+        p = subprocess.Popen(['python3', f'minerva/streamer.py'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        print("start streamer", p.pid)
+        processes.append(p)        
+        #time.sleep(2)
+        #kill_duplicate_oracle_processes()
+        time.sleep(2)
+
+        while True:
+            msg = consumer_socket.recv_string() # orderbook
+            
+            os.system('clear')
+            bar.next()
+
+            if msg == 'kill':
+                print('')
+                for process in processes:
+                    print(f' kill {process.pid}')
+                    os.kill(process.pid,9) #process.kill() # OR #
+                break
+
+            time.sleep(0.03)
+
+        bar.finish()
+        print('get old population')
+        POPULATION = get_population(filepath_strategies = NEW_GENERATION_FOLDER )
+        gc.collect()
+        
+        NEW_GENERATION_FOLDER = NEW_GENERATION_FOLDER.replace(f'generation_{generation_number}',f'generation_{generation_number+1}')
+        
+        print('selection')
+        parents = selection(POPULATION, fitness_function)
+        
+        print('cross over')
+        children = []
+        if POPULATION_SIZE > len(children):
+            while POPULATION_SIZE > len(children):
+                parent1 = random.choice(parents)
+                parent2 = random.choice(parents)
+                #print(POPULATION)  ####################### FIX CROSS OVER
+                child = mutate_strategy(crossover(parent1, parent2))
+                if child not in children:
+                    children.append(child)
+
+                time.sleep(1)
+                print(f' {len(parents)} adults are trying to have sex')
+                print(f' {len(children)} babies')
+
+        print('mutation')
+        print(f'save population {NEW_GENERATION_FOLDER}')
+        save_population(population = children, dir_name = NEW_GENERATION_FOLDER )
+        print('get population')
+        POPULATION = get_population(filepath_strategies = NEW_GENERATION_FOLDER )
+        
+
+if __name__ == "__main__":
+    genetic_algorithm()

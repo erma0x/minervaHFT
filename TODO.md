@@ -1,7 +1,5 @@
 # DOING
 
-[ ] testa il codice di ricerca operativa GA
-[ ] testa l observer del GA
 
 [ ] testa il codice di trading demo
 
@@ -22,6 +20,13 @@
         df.to_csv() => df.to_feather('test.feather')
 
 # DONE
+
+[x] pickle updates on oracle
+
+[x] subprocess operation test
+
+[x] .parquet slpit
+
 [x] unit test di tutto per capire ed unire i pezzi per poter poi modificare il programma da testato
     testa i comportamenti dei vari moduli
 
