@@ -329,10 +329,10 @@ def genetic_algorithm():
         
         NEW_GENERATION_FOLDER = NEW_GENERATION_FOLDER.replace(f'generation_{generation_number}',f'generation_{generation_number+1}')
         
-        print('selection')
+        print('genetic algorithm: selection')
         parents = selection(POPULATION, fitness_function)
         
-        print('cross over')
+        print('genetic algorithm: cross over')
         children = []
         if POPULATION_SIZE > len(children):
             while POPULATION_SIZE > len(children):
@@ -347,7 +347,7 @@ def genetic_algorithm():
                 print(f' {len(parents)} adults are trying to have sex')
                 print(f' {len(children)} babies')
 
-        print('mutation')
+        print('genetic algorithm: mutation')
         print(f'save population {NEW_GENERATION_FOLDER}')
         save_population(population = children, dir_name = NEW_GENERATION_FOLDER )
         print('get population')

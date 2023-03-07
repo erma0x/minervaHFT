@@ -387,7 +387,7 @@ if __name__ == '__main__':
                         if type(GAIN_PERCENTAGE_24H) != float :
                             GAIN_PERCENTAGE_24H = float(GAIN_PERCENTAGE_24H[0])
                         
-                        FITNESS = (EQUITY-INITIAL_CAPITAL)[0]
+                        FITNESS = GAIN_PERCENTAGE_24H
                         FITNESS_DATA = {'fitness':FITNESS,'#trades':ID_TRADE_,'gain_24_h':GAIN_PERCENTAGE_24H,'msg':counter_messages}
                         store_perfomances(data = FITNESS_DATA, filename = STRATEGY_PATH)
                         #update_performance( performance = GAIN_PERCENTAGE_24H , performance_name = "fitness" , path = STRATEGY_PATH )

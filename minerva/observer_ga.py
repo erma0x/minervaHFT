@@ -61,5 +61,5 @@ def load_pickle(filename):
 GENERATION_NUMBER = 0
 
 while True:
-    monitor_performances(filepath='minerva/runs/experiment_208/generation_0')
+    monitor_performances(filepath='minerva/runs/experiment_208/generation_7')
     
