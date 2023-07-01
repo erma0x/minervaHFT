@@ -1,4 +1,4 @@
-# MinervaHFT 🦉
+# MinervaHFT
 
 <img src="./documents/space.gif" width="1600" />
 
