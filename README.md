@@ -8,6 +8,11 @@
 High frequency Automated Trading System with crypto volumes data driven system capital allocation.
 HFT with directional move on void of orderbook+traded volumes an positioningon the within the nearby orderbook+traded volumes. Price discovery through limit orderd book imbalances. Limit order front running.
 
+## Development tools
+- https://dev.binance.vision/
+- https://binance-docs.github.io/apidocs/spot/en/#new-order-trade
+- https://www.binance.com/en
+  
 ## How to run
 
 ###  Install
@@ -270,3 +275,12 @@ There are many fiddly things to take care of when becoming a well-behaved daemon
 - handle a PID file as a cooperative advisory lock, which is a whole can of worms in itself with many contradictory but valid ways to behave
 - allow proper cleanup when the process is terminated
 - actually become a daemon process without leading to zombies
+
+
+
+
+
+
+
+
+
