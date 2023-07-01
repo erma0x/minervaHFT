@@ -17,17 +17,17 @@ while os.path.exists(STRATEGIES_FOLDER):
 
 
 # STREAMER
-BACKTEST_MODE = True
+BACKTEST_MODE = False
 SAVE_LIVE_DATA_IN_SQL = False
 
-PRINT_TIMESTAMP = False
-# ORACLE Trading algorithm 
-PRINT_ANY_DATA = False
-PRINT_BASIC_DATA = False
+# ORACLE Trading algorithm
+PRINT_TIMESTAMP = True
+PRINT_ANY_DATA = True
+PRINT_BASIC_DATA = True
 
 # if debug = true
-PRINT_ALGORITHM = False
-PLOT_DATA = False
+PRINT_ALGORITHM = True
+PLOT_DATA = True
 
 
 # SAVE LIVE DATA IN THIS FILE
@@ -41,7 +41,7 @@ ORDERBOOK_BACKTESTING_FOLDER = ROOT_PATH+f'/databases/output_parquet'
 counter_live_datapoints = 0
 
 ############################################################################
-INITIAL_CAPITAL =  5000
+INITIAL_CAPITAL =  100
 EQUITY = INITIAL_CAPITAL
 REQUEST_TIME_INTERVAL = 0.4
 LEVERAGE = 1
@@ -52,11 +52,8 @@ ALLOW_SHORT_OPERATIONS = False
 TAKER_FEES = 0.0006 # (0,1) % 
 MAKER_FEES = 0.0002 # (0,1) %
 ############################################################################
-
 # TIMING without visualizer 0.8 / 1.6 seconds
 # TIMING with    visualizer 2.3 / 3.0 seconds
-
-
 WEBSOCKET_ORDERBOOK_BINANCE = 'wss://stream.binance.com:9443/ws'
 DATASTREAMER_URL = "ipc://127.0.0.1:5678"
 ORACLE_URL = "ipc://127.0.0.1:5679"

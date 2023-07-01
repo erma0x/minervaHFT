@@ -3,8 +3,9 @@ import os
 import os,sys
 PROJECT_PATH = os.getcwd()
 sys.path.append(PROJECT_PATH.replace('minerva/',''))
-from minerva.configuration_strategy import *
-from minerva.configuration_backtest import STRATEGIES_FOLDER
+from configuration_strategy import *
+from configuration_backtest import STRATEGIES_FOLDER
+from configuration_trading import TICKER, BASE_CURRENCY
 
 def strategy_generator(strategies_folder):
     """
@@ -49,7 +50,7 @@ def strategy_generator(strategies_folder):
         PATH_FILE = PATH_FILE.replace(f'strategy_{N_STRATEGY-1}',f'strategy_{N_STRATEGY}')
 
     with open(PATH_FILE, "w") as file:
-        file.write("""MARKET = "{}"\n""".format(MARKET))
+        file.write("""MARKET = "{}"\n""".format(TICKER+BASE_CURRENCY))
         file.write("LIMIT_ORDER_BOOK = {}\n".format(LIMIT_ORDERBOOK))
         file.write("RELATIVE_THRESHOLD_DIV = {}\n".format(RELATIVE_THRESHOLD_DIV))
         file.write("THRESHOLD_SHORT = {}\n".format(THRESHOLD_SHORT))

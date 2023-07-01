@@ -6,8 +6,8 @@ import time
 from decimal import Decimal
 import sqlite3
 from datetime import datetime
-from minerva.configuration_backtest import SQL_DB_TIME
-from minerva.configuration_strategy import MARKET
+from configuration_backtest import SQL_DB_TIME
+from configuration_trading import MARKET
 
 def dropzeros(number):
   """drop the zeroes of the given number

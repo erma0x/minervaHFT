@@ -7,7 +7,7 @@ import zmq
 import os
 import time
 
-from minerva.configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
+from configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
 
 
 def run_oracle(file):

@@ -1,17 +1,8 @@
 import os
 import time
 from binance.client import Client
+from trader import check_balance
 
-def get_full_binance_balance(api_key, api_secret):
-    client = Client(api_key, api_secret)
-    account_info = client.get_account()
-    balances = {}
-    for entry in account_info['balances']:
-        asset = entry['asset']
-        balances[asset] = {}
-        balances[asset]['free'] = float(entry['free'])
-        balances[asset]['locked'] = float(entry['locked'])
-    return balances
 
 def get_free_usdt_balance(api_key, api_secret):
     client = Client(api_key, api_secret)
@@ -30,20 +21,24 @@ btc_locked = balances['BTC']['locked']
 """
 
 if __name__ == '__main__':
+    THERORETICAL_FITNESS = get_finess_strategy()
+
     while True:
         # get starting time
         DAYS_OF_TRADING = 1
         INITIAL_EQUITY = 100
-        GAIN_24H_PERCENTAGE = round((get_full_binance_balance()-INITIAL_EQUITY)/INITIAL_EQUITY*100/DAYS_OF_TRADING ,4)
+
+        ticker = "ETH"
+        assets = get_full_binance_balance()
+        GAIN_24H_PERCENTAGE = round((-INITIAL_EQUITY)/INITIAL_EQUITY*100/DAYS_OF_TRADING ,4)
 
         EMPIRICAL_FITNESS = GAIN_24H_PERCENTAGE
-        THERORETICAL_FITNESS = get_finess_strategy()
 
         os.system('clear')
-        print(f'\nTHERORETICAL_FITNESS                    {THERORETICAL_FITNESS}')
-        print(f'EMPIRICAL_FITNESS                       {EMPIRICAL_FITNESS}')
-        print(f'gain% shift (theoretical - empirical)   {THERORETICAL_FITNESS - EMPIRICAL_FITNESS}')
-
+        print(f'\nTHERORETICAL_FITNESS                         {THERORETICAL_FITNESS}')
+        print(f'EMPIRICAL_FITNESS                              {EMPIRICAL_FITNESS}')
+        print(f'theoretical% shift (theoretical - empirical)   {THERORETICAL_FITNESS - EMPIRICAL_FITNESS}')
+        print(f'open positions                                 {} ')
         time.sleep(1)
 
 # controlla in live la fitness del file e la fintess del account reale

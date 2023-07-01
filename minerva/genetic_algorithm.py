@@ -4,9 +4,7 @@ import zmq
 import signal
 from progress.bar import FillingSquaresBar, FillingCirclesBar, PixelBar,ChargingBar
 
-import os,sys
-PROJECT_PATH = os.getcwd()
-sys.path.append(PROJECT_PATH.replace('minerva/',''))
+
 import pickle, multiprocessing, gc
 
 import shutil
@@ -19,12 +17,17 @@ from colorama import init as colorama_init
 from colorama import Fore
 from colorama import Style
 
-
-from minerva.configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
-from minerva.configuration_genetic_algorithm import MUTATION_RATE, GENERATIONS, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION, SELECTION_RATE
-from minerva.configuration_strategy import *
-from minerva.threading_utils import *
-from minerva.strategy_generator import strategy_generator
+import os,sys
+PROJECT_PATH = os.getcwd()
+PROJECT_PATH = PROJECT_PATH.replace('minerva/','')
+#print(PROJECT_PATH)
+#sys.path.append(PROJECT_PATH.replace('minervaHFT/','minervaHFT/minerva'))
+sys.path.append(PROJECT_PATH)
+from configuration_backtest import ROOT_PATH, STRATEGIES_FOLDER
+from configuration_genetic_algorithm import MUTATION_RATE, GENERATIONS, POPULATION_SIZE, GET_BEST_INITIAL_POPULATION, SELECTION_RATE
+from configuration_strategy import *
+from threading_utils import *
+from strategy_generator import strategy_generator
 
   
 
@@ -274,6 +277,7 @@ def genetic_algorithm():
 
         processes = []
         for file in files:
+            file = file.replace('minerva/','')
             oracle_file = file.split('minervaHFT/')[1]
             p = subprocess.Popen(['python3', 'minerva/oracle.py',f'-s ./{oracle_file}'], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             
@@ -290,12 +294,11 @@ def genetic_algorithm():
         consumer_socket.connect("tcp://127.0.0.1:5556")
         consumer_socket.setsockopt_string(zmq.SUBSCRIBE, "")
         
-        print('lunching zmq consumer socket for killing the processes')
         
         counter = 0
         gc.enable()
         gc.set_threshold( 2000 , 1000 , 1000)
-        time.sleep(2)
+        time.sleep(1)
 
         bar = ChargingBar(f'\n\t generation {generation_number} ', max = 4 * 5000)    
 
@@ -305,7 +308,7 @@ def genetic_algorithm():
         processes.append(p)        
         #time.sleep(2)
         #kill_duplicate_oracle_processes()
-        time.sleep(2)
+        time.sleep(1)
 
         while True:
             msg = consumer_socket.recv_string() # orderbook

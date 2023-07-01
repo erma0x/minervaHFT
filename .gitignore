@@ -5,7 +5,8 @@ __pycache__/
 *.db
 
 #minerva/runs/
-tests/runs/
+minerva/keys
+tests/runs
 
 # C extensions
 *.so

@@ -35,6 +35,10 @@ top
 
 
 ### Trading API
+
+https://api3.binance.com/api/v3/ping
+
+
 ```bash
 export BINANCE_API_KEY='la_tua_api_key'
 export BINANCE_API_SECRET='il_tuo_api_secret'
