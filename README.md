@@ -181,19 +181,20 @@ python3 genetic_algorithm.py
 7. PLOT PEAKS
 9. FIND MINIMA
 
+```python3
+peaks, _ = find_peaks( -y, height = 0, THRESHOLD = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1```
+```   
 
-```python3   peaks, _ = find_peaks( -y, height = 0, THRESHOLD = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1```
+are the peaks actually what I see? -> set THRESHOLD
+     distance from previous peak -> set distance
 
-    i picchi sono effettivamente quelli che vedo? -> setta THRESHOLD
-    distanza dal picco precendente -> setta distanza
-
-    bin = x
-    intensita = y
+ bin = x
+ intensity = y
 
 
-    Use this formula to calculate your trading fees when using leverage:
-    Account Size x Leverage = Position size
-    Position Size x Transaction Fee = Total fee
+ Use this formula to calculate your trading fees when using leverage:
+ Account Size x Leverage = Position size
+ Position Size x Transaction Fee = Total fee
 
 
 ## Finance research
