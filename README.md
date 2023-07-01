@@ -1,5 +1,8 @@
 # Minerva HFT
 
+<img src="./documents/space.gif" width="1600" />
+
+
 ## Description
 
 High frequency Automated Trading System with crypto volumes data driven system capital allocation.
