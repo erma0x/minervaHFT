@@ -1,4 +1,4 @@
-# Minerva HFT
+# MinervaHFT 🦉
 
 <img src="./documents/space.gif" width="1600" />
 
@@ -18,16 +18,22 @@ python3 setup.py install
 ### Unit-test project 
 ```bash
 python3 -m unittest discover -v ./tests/
-OR
+```
+alternative
+```
 make test 
 ```
 
 ### Check evolution processes 
 ```bash
 ps -aux | grep python3
-    or
+```
+alternative
+```
 htop
-    or
+```
+alternative
+```
 top
 ```
 
@@ -65,10 +71,8 @@ python3 minerva/oracle.py -s ./strategy_0.py # check signal and trading_operatio
 python3 minerva/observer_account.py          # connect to binance
                                              # check read real fitness (fitness strategy.py) vs theoretical fitness (what is printed out of oracle with PRINT)
 ```
-# IMPORTANT REMEMBER! import trader_binance_futures(trading_operation)
-# REFRESH IP AND RESET MACHINE IF NO OPERATION EACH 30 min ?
 
-###  Evolve
+###  Evolve: genetic algorithms
 ``` 
 python3 observer_genetic_algorithm.py
 python3 genetic_algorithm.py
@@ -98,16 +102,16 @@ python3 genetic_algorithm.py
 
 ##  **Algorithm for Entries, Take Profits and Stop Losses**
 
-1. vedi se ci sono operazioni aperte identiche o simili
-1. vedi se ci sono troppe operazioni aperte (troppo numero o troppo capitale investito) 
-1. calcolo se nell' immediato ci sono segnali puliti per applicare i vuoti volumetrici 
-    volume profile del immediato e confrontarlo con l'order book, 
-    se ci sono forti capitali fra i segnati calcolati meglio disdire
-1. calcolo del range in cui e' possibile aprire un operazione ENTRY ampiezza segnale volumetrico pulito
-1. se il prezzo e' nel range e l'order book sta per essere pienato da una unica direzione (LONG o SHORT)
-1. imposta ENTRY limite a prezzo svantaggioso nella direzione in cui sta andando
-1. imposta TP nel picco accanto rispetto al movimento secondo wychoff
-1. imposta SL nel picco accanto rispetto al movimento secondo wychoff 
+1. see if there are any identical or similar open trades
+1. see if there are too many open trades (too many or too much invested capital)
+1. Calculate if there are immediate clean signals to apply volumetric voids
+     volume profile of the immediate and compare it with the order book,
+     if there are strong capitals among the calculated scores, it is better to cancel
+1. calculation of the range in which it is possible to open an ENTRY operation clean volumetric signal amplitude
+1. if the price is in the range and the order book is about to be filled from a single direction (LONG or SHORT)
+1. Set ENTRY limit at disadvantageous price in the direction it is going
+1. set TP in the next peak with respect to the movement according to wychoff
+1. set SL in the next peak with respect to the movement according to wychoff
 
 ### **Algorithm for Risk Maneagement**
     - 3% for trade with max allowed leverage 
@@ -168,14 +172,14 @@ python3 genetic_algorithm.py
 ```python3 minerva.py -plt False -cap 5000 -lo 500 -rt 10 -sp 0.75 -lp 0.25 -maxt 5 -pkd 10 -pf 1 --market BTCUSDT```
 
 ## Workflow
-1. PRENDI DATI
-2. TROVA PICCHI ASK
-3. TROVA PICCHI BID
-4. PLOTTA ORDERBOOK
-5. PLOTTA THRESHOLD
-6. PLOTTA PREZZO
-7. PLOTTA PICCHI
-9. TROVA MINIMI 
+1. GET DATA
+2. FIND PEAKS ASK
+3. FIND PEAK BIDs
+4. PLOT ORDERBOOK
+5. PLOT THRESHOLD
+6. PRICE PLOT
+7. PLOT PEAKS
+9. FIND MINIMA
 
 
 ```python3   peaks, _ = find_peaks( -y, height = 0, THRESHOLD = THRESHOLD_BTCUSDT, prominence = 5) #, distance = 1```
@@ -203,28 +207,28 @@ Dai dati di klines e' possibile ricavare i seguenti dati
 
 
 
-## Teoria dell Architettura di controllo del processo
+## Process Control Architecture Theory
 
-È un tipo di architettura del flusso di dati in cui i dati non sono né sequenziali in batch né flussi pipeline. Il flusso di dati proviene da un insieme di variabili, che controlla l'esecuzione del processo. Scompone l'intero sistema in sottosistemi o moduli e li collega.
-Tipi di sottosistemi
+It is a type of data flow architecture where the data is neither batch sequential nor pipelined flows. The data flow comes from a set of variables, which controls the execution of the process. It breaks down the whole system into subsystems or modules and connects them.
+Types of subsystems
 
-Un'architettura di controllo di processo dovrebbe avere un'unità di elaborazione per modificare le variabili di controllo di processo e un'unità di controllo per calcolare la quantità di modifiche.
+A process control architecture should have a processing unit to change the process control variables and a controller to calculate the amount of changes.
 
-Un'unità di controllo deve avere i seguenti elementi −
+A control unit must have the following elements −
 
-    Variabile controllata - La variabile controllata fornisce valori per il sistema sottostante e dovrebbe essere misurata dai sensori. Ad esempio, la velocità nel sistema di controllo automatico della velocità.
+     Controlled Variable - The controlled variable provides values for the underlying system and should be measured by sensors. For example, the speed in cruise control.
 
-    Input Variable - Misura un input per il processo. Ad esempio, la temperatura dell'aria di ritorno nel sistema di controllo della temperatura
+     Input Variable - Measures an input to the process. For example, the return air temperature in the temperature control system
 
-    Variabile manipolata - Il valore della variabile manipolata viene regolato o modificato dal controller.
+     Manipulated variable - The value of the manipulated variable is adjusted or changed by the controller.
 
-    Definizione di processo - Include meccanismi per manipolare alcune variabili di processo.
+     Process definition - Includes mechanisms for manipulating some process variables.
 
-    Sensore − Ottiene i valori delle variabili di processo pertinenti al controllo e può essere utilizzato come riferimento di feedback per ricalcolare le variabili manipolate.
+     Sensor − Obtains the values of the process variables relevant to the control and can be used as a feedback reference to recalculate the manipulated variables.
 
-    Set Point − È il valore desiderato per una variabile controllata.
+     Set Point − This is the desired value for a controlled variable.
 
-    Algoritmo di controllo - Viene utilizzato per decidere come manipolare le variabili di processo.
+     Control algorithm - It is used to decide how to manipulate process variables.
 
 ## Deamons
 ### Start deamons with nohup
