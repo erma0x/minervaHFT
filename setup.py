@@ -8,7 +8,7 @@ setup(
         'matplotlib==3.6.1',
         'pyzmq==24.0.1',
         'pandas==1.5.1',
-        'requests==2.28.2',
+        'requests==2.31.0',
         'python-binance==1.0.16',
         'scipy==1.10.0'
     ],
